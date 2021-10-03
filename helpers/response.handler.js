@@ -50,7 +50,6 @@ exports.sendError = (params = {}, debug = false) => {
 };
 
 exports.removeEmptyValues = (obj) => {
-    obj = obj.toJSON();
     Object.keys(obj).forEach((key) => (obj[key] === undefined || obj[key] === null) && delete obj[key]);
     return obj;
 };

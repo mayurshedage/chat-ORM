@@ -9,7 +9,7 @@ let UserController = {
         let ON_DEMAND_DB = req.headers['app_id'];
         try {
             let users = await UserService.findAll(ON_DEMAND_DB);
-            if (rows.length == 0) return res.status(200).json({ data: users });
+            if (users.length == 0) return res.status(200).json({ data: users });
 
             let filterRows = [];
             users.forEach(row => {

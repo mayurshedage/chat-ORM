@@ -7,7 +7,7 @@ let UserService = {
         const UserSchema = dbModels[database].user;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.findAll({ attributes: { exclude: excludeColumns } })
+            UserSchema.findAll({ attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -20,7 +20,7 @@ let UserService = {
         const UserSchema = dbModels[database].user;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.findOne({ where: { uid: uid }, attributes: { exclude: excludeColumns } })
+            UserSchema.findOne({ where: { uid: uid }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {

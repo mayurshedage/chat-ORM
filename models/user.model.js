@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
         statusMessage: {
             type: DataTypes.TEXT
         },
+        metadata: {
+            type: DataTypes.JSON
+        },
         credits: {
             type: DataTypes.INTEGER,
             allowNull: false,
