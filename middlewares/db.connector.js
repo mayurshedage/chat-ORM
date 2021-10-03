@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const Redis = require('redis');
 const { exec } = require("child_process");
-const { Sequelize } = require('sequelize');
+const { Sequelize, Model } = require('sequelize');
 const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
 const Helper = require('../helpers/response.handler');
@@ -33,7 +33,7 @@ exports.openConnection = async (req, res, next) => {
             return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file.slice(-3) === '.js');
         })
         .forEach(file => {
-            const model = require(path.join(modelsDir, file))(sequelize, Sequelize.DataTypes);
+            const model = require(path.join(modelsDir, file))(sequelize, Sequelize.DataTypes, Model);
             db[model.name] = model;
         });
 
@@ -48,14 +48,27 @@ exports.openConnection = async (req, res, next) => {
 
     dbModels[ON_DEMAND_DB] = db;
 
+    _initDBSetup(ON_DEMAND_DB, sequelize, req, res, next);
+};
+
+const _initDBSetup = async (db, sequelize, req, res, next) => {
+    let throwErrorOnce = true;
     const redisClient = Redis.createClient();
 
     redisClient.on('error', (error) => {
         if (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            if (throwErrorOnce) {
+                throwErrorOnce = false;
+                Helper.sendError({
+                    key: 'APP',
+                    code: 'ER_ECONNREFUSED',
+                    responder: res,
+                    trace: error
+                }, req.query.debug);
+            }
         }
     }).on('connect', async () => {
-        redisClient.hget('migrations', ON_DEMAND_DB, async (error, data) => {
+        redisClient.hget('migrations', db, async (error, data) => {
             if (data != null) { next(); return; };
 
             try {
@@ -67,7 +80,7 @@ exports.openConnection = async (req, res, next) => {
                         unique: true
                     }
                 });
-                exec("node migration.js up " + ON_DEMAND_DB, (error, stdout, stderr) => {
+                exec("node migration.js up " + db, (error, stdout, stderr) => {
                     if (error) {
                         console.log(`error: ${error.message}`);
                         return;
@@ -78,14 +91,14 @@ exports.openConnection = async (req, res, next) => {
                     }
                     console.log(`stdout: ${stdout}`);
 
-                    redisClient.hset('migrations', ON_DEMAND_DB, 1);
+                    redisClient.hset('migrations', db, 1);
                     next();
                 });
             } catch (error) {
                 Helper.sendError({
                     key: 'APP',
                     code: 'ER_APP_NOT_FOUND',
-                    input: ON_DEMAND_DB,
+                    input: db,
                     responder: res,
                     statusCode: 404,
                     trace: error
@@ -93,4 +106,4 @@ exports.openConnection = async (req, res, next) => {
             }
         });
     });
-};
+}
