@@ -3,7 +3,6 @@ require('dotenv').config();
 const cors = require('cors');
 const express = require('express');
 const database = require('./middlewares/db.connector');
-const migration = require('./middlewares/migration.exec');
 const { header, query } = require('express-validator');
 const validator = require('./middlewares/request.validate');
 
@@ -30,8 +29,6 @@ app.use(
     validator.showError,
     database.openConnection
 );
-
-app.use(migration.execute);
 
 app.use((req, res, next) => {
     try {

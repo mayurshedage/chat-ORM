@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { QueryTypes, Sequelize } = require('sequelize');
+const Redis = require('redis');
+const { exec } = require("child_process");
+const { Sequelize } = require('sequelize');
 const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
 const Helper = require('../helpers/response.handler');
@@ -46,24 +48,49 @@ exports.openConnection = async (req, res, next) => {
 
     dbModels[ON_DEMAND_DB] = db;
 
-    try {
-        const queryInterface = sequelize.getQueryInterface();
-        await queryInterface.createTable('mysql_migrations_347ertt3e', {
-            timestamp: {
-                type: Sequelize.STRING,
-                allowNull: false,
-                unique: true
+    const redisClient = Redis.createClient();
+
+    redisClient.on('error', (error) => {
+        if (error) {
+            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+        }
+    }).on('connect', async () => {
+        redisClient.hget('migrations', ON_DEMAND_DB, async (error, data) => {
+            if (data != null) { next(); return; };
+
+            try {
+                const queryInterface = sequelize.getQueryInterface();
+                await queryInterface.createTable('mysql_migrations_347ertt3e', {
+                    timestamp: {
+                        type: Sequelize.STRING,
+                        allowNull: false,
+                        unique: true
+                    }
+                });
+                exec("node migration.js up " + ON_DEMAND_DB, (error, stdout, stderr) => {
+                    if (error) {
+                        console.log(`error: ${error.message}`);
+                        return;
+                    }
+                    if (stderr) {
+                        console.log(`stderr: ${stderr}`);
+                        return;
+                    }
+                    console.log(`stdout: ${stdout}`);
+
+                    redisClient.hset('migrations', ON_DEMAND_DB, 1);
+                    next();
+                });
+            } catch (error) {
+                Helper.sendError({
+                    key: 'APP',
+                    code: 'ER_APP_NOT_FOUND',
+                    input: ON_DEMAND_DB,
+                    responder: res,
+                    statusCode: 404,
+                    trace: error
+                }, req.query.debug);
             }
         });
-        next();
-    } catch (error) {
-        Helper.sendError({
-            key: 'APP',
-            code: 'ER_APP_NOT_FOUND',
-            input: ON_DEMAND_DB,
-            responder: res,
-            statusCode: 404,
-            trace: error
-        }, req.query.debug);
-    }
+    });
 };
