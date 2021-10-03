@@ -1,0 +1,32 @@
+{
+	"name": "chat-api",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node server.js",
+		"dev": "nodemon server.js"
+	},
+	"keywords": [
+		"nodejs",
+		"express",
+		"rest",
+		"api",
+		"sequelize",
+		"mysql"
+	],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"express-validator": "^6.12.2",
+		"mysql2": "^2.3.0",
+		"redis": "^3.1.2",
+		"sequelize": "^6.6.5"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.13"
+	}
+}
