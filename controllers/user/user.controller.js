@@ -9,9 +9,15 @@ let UserController = {
         let ON_DEMAND_DB = req.headers['app_id'];
         try {
             let users = await UserService.findAll(ON_DEMAND_DB);
-            res.status(201).json(users);
+            if (rows.length == 0) return res.status(200).json({ data: users });
+
+            let filterRows = [];
+            users.forEach(row => {
+                filterRows.push(Helper.removeEmptyValues(row));
+            });
+            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
         } catch (error) {
-            console.log(error);
+            Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
     },
 
@@ -89,7 +95,6 @@ let UserController = {
 
         try {
             let result = await UserService.delete(ON_DEMAND_DB, uid);
-            console.log('result', result);
             if (result) {
                 Helper.sendResponse({
                     key: 'USER',

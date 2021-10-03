@@ -1,13 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const Sequelize = require('sequelize');
+const { QueryTypes, Sequelize } = require('sequelize');
 const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
+const Helper = require('../helpers/response.handler');
 
 require('dotenv').config();
 
-exports.openConnection = (req, res, next) => {
+exports.openConnection = async (req, res, next) => {
     const ON_DEMAND_DB = req.headers['app_id'];
+    console.log('ON_DEMAND_DB', ON_DEMAND_DB);
     const db = {};
     let sequelize;
 
@@ -44,18 +46,17 @@ exports.openConnection = (req, res, next) => {
 
     dbModels[ON_DEMAND_DB] = db;
 
-    sequelize
-        .authenticate()
-        .then(() => {
-            console.log('Connection has been established successfully.');
-            next();
-        })
-        .catch(error => {
-            res.status(500).json({
-                error: {
-                    message: 'Invalid APP_ID',
-                    trace: error
-                }
-            });
-        });
-}
+    try {
+        await sequelize.query("SELECT uid FROM `users` limit 1", { type: QueryTypes.SELECT });
+        next();
+    } catch (error) {
+        Helper.sendError({
+            key: 'APP',
+            code: 'ER_APP_NOT_FOUND',
+            input: ON_DEMAND_DB,
+            responder: res,
+            statusCode: 404,
+            trace: error
+        }, req.query.debug);
+    }
+};
