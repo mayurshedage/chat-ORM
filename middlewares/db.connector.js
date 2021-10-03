@@ -9,7 +9,7 @@ require('dotenv').config();
 
 exports.openConnection = async (req, res, next) => {
     const ON_DEMAND_DB = req.headers['app_id'];
-    console.log('ON_DEMAND_DB', ON_DEMAND_DB);
+
     const db = {};
     let sequelize;
 

@@ -3,6 +3,8 @@ require('dotenv').config();
 const cors = require('cors');
 const express = require('express');
 const database = require('./middlewares/db.connector');
+const { header, query } = require('express-validator');
+const validator = require('./middlewares/request.validate');
 
 const app = express();
 
@@ -13,7 +15,20 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-app.use(database.openConnection);
+app.use(
+    [
+        header(['app_id']).not().isEmpty(),
+        query(['debug']).optional().not().isEmpty().custom((value, { req }) => {
+            if (req.query.debugCode !== process.env.DEBUG_HASH) {
+                throw new Error('OOps! incorrect `debugCode`. Please verify the `debugCode` in query params.');
+            } else {
+                return true;
+            }
+        })
+    ],
+    validator.showError,
+    database.openConnection
+);
 
 app.use((req, res, next) => {
     try {
