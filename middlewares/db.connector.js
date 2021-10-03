@@ -47,7 +47,14 @@ exports.openConnection = async (req, res, next) => {
     dbModels[ON_DEMAND_DB] = db;
 
     try {
-        await sequelize.query("SELECT uid FROM `users` limit 1", { type: QueryTypes.SELECT });
+        const queryInterface = sequelize.getQueryInterface();
+        await queryInterface.createTable('mysql_migrations_347ertt3e', {
+            timestamp: {
+                type: Sequelize.STRING,
+                allowNull: false,
+                unique: true
+            }
+        });
         next();
     } catch (error) {
         Helper.sendError({
