@@ -48,10 +48,10 @@ exports.openConnection = async (req, res, next) => {
 
     dbModels[ON_DEMAND_DB] = db;
 
-    _initDBSetup(ON_DEMAND_DB, sequelize, req, res, next);
+    _syncDBWithModel(ON_DEMAND_DB, sequelize, req, res, next);
 };
 
-const _initDBSetup = async (db, sequelize, req, res, next) => {
+const _syncDBWithModel = async (db, sequelize, req, res, next) => {
     let throwErrorOnce = true;
     const redisClient = Redis.createClient();
 
@@ -72,28 +72,31 @@ const _initDBSetup = async (db, sequelize, req, res, next) => {
             if (data != null) { next(); return; };
 
             try {
-                const queryInterface = sequelize.getQueryInterface();
-                await queryInterface.createTable('mysql_migrations_347ertt3e', {
-                    timestamp: {
-                        type: Sequelize.STRING,
-                        allowNull: false,
-                        unique: true
-                    }
-                });
-                exec("node migration.js up " + db, (error, stdout, stderr) => {
-                    if (error) {
-                        console.log(`error: ${error.message}`);
-                        return;
-                    }
-                    if (stderr) {
-                        console.log(`stderr: ${stderr}`);
-                        return;
-                    }
-                    console.log(`stdout: ${stdout}`);
-
-                    redisClient.hset('migrations', db, 1);
-                    next();
-                });
+                await sequelize.sync({ alter: true });
+                try {
+                    const queryInterface = sequelize.getQueryInterface();
+                    await queryInterface.createTable('mysql_migrations_347ertt3e', {
+                        timestamp: {
+                            type: Sequelize.STRING,
+                            allowNull: false,
+                            unique: true
+                        }
+                    });
+                    exec("node migration.js up " + db, (error, stdout, stderr) => {
+                        console.log("1313");
+                        redisClient.hset('migrations', db, 1);
+                        next();
+                    });
+                } catch (error) {
+                    Helper.sendError({
+                        key: 'APP',
+                        code: 'ER_APP_NOT_FOUND',
+                        input: db,
+                        responder: res,
+                        statusCode: 404,
+                        trace: error
+                    }, req.query.debug);
+                }
             } catch (error) {
                 Helper.sendError({
                     key: 'APP',
