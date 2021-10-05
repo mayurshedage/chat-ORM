@@ -1,5 +1,5 @@
 const dbModels = require('../../models');
-let excludeColumns = ['createdBy', 'updatedAt', 'deletedAt'];
+let excludeColumns = ['apiKey', 'updatedAt', 'deletedAt'];
 
 let AuthTokenService = {
 

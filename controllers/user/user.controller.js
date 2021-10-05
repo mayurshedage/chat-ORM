@@ -5,8 +5,9 @@ const Helper = require('../../helpers/response.handler');
 
 let UserController = {
 
-    findAll: async (req, res, next) => {
+    findAll: async (req, res) => {
         let ON_DEMAND_DB = req.headers['app_id'];
+
         try {
             let users = await UserService.findAll(ON_DEMAND_DB);
             if (users.length == 0) return res.status(200).json({ data: users });
@@ -21,7 +22,7 @@ let UserController = {
         }
     },
 
-    findOne: async (req, res, next) => {
+    findOne: async (req, res) => {
         let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
 
@@ -41,7 +42,7 @@ let UserController = {
         }
     },
 
-    create: async (req, res, next) => {
+    create: async (req, res) => {
         let ON_DEMAND_DB = req.headers['app_id'];
         let userToCreate = req.body;
 
@@ -65,7 +66,7 @@ let UserController = {
         }
     },
 
-    update: async (req, res, next) => {
+    update: async (req, res) => {
         let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
         let userToUpdate = req.body;
@@ -90,7 +91,7 @@ let UserController = {
         }
     },
 
-    delete: async (req, res, next) => {
+    delete: async (req, res) => {
         let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
 
