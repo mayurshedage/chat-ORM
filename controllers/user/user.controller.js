@@ -44,6 +44,7 @@ let UserController = {
     create: async (req, res, next) => {
         let ON_DEMAND_DB = req.headers['app_id'];
         let userToCreate = req.body;
+
         userToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
@@ -116,7 +117,6 @@ let UserController = {
             Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
     }
-
 };
 
 module.exports = UserController;

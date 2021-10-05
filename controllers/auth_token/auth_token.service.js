@@ -1,13 +1,13 @@
 const dbModels = require('../../models');
-let excludeColumns = ['lastActiveAt', 'statusMessage', 'credits', 'createdBy', 'updatedBy', 'deletedBy', 'updatedAt', 'deletedAt'];
+let excludeColumns = ['createdBy', 'updatedAt', 'deletedAt'];
 
-let UserService = {
+let AuthTokenService = {
 
     findAll: async (database) => {
-        const UserSchema = dbModels[database].user;
+        const APIKeyModel = dbModels[database].apikey;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.findAll({ attributes: { exclude: excludeColumns }, raw: true })
+            APIKeyModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -16,11 +16,11 @@ let UserService = {
         });
     },
 
-    findOne: async (database, uid) => {
-        const UserSchema = dbModels[database].user;
+    findOne: async (database, apiKey) => {
+        const APIKeyModel = dbModels[database].apikey;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.findOne({ where: { uid: uid }, attributes: { exclude: excludeColumns }, raw: true })
+            APIKeyModel.findOne({ where: { apiKey: apiKey }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -30,10 +30,10 @@ let UserService = {
     },
 
     create: async (database, body) => {
-        const UserSchema = dbModels[database].user;
+        const APIKeyModel = dbModels[database].apikey;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.create(body)
+            APIKeyModel.create(body)
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -42,11 +42,11 @@ let UserService = {
         });
     },
 
-    update: async (database, uid, body) => {
-        const UserSchema = dbModels[database].user;
+    update: async (database, apiKey, body) => {
+        const APIKeyModel = dbModels[database].apikey;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.update(body, { where: { uid: uid } })
+            APIKeyModel.update(body, { where: { apiKey: apiKey } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -55,11 +55,11 @@ let UserService = {
         });
     },
 
-    delete: async (database, uid) => {
-        const UserSchema = dbModels[database].user;
+    delete: async (database, apiKey) => {
+        const APIKeyModel = dbModels[database].apikey;
 
         return new Promise(function (resolve, reject) {
-            UserSchema.destroy({ where: { uid: uid } })
+            APIKeyModel.destroy({ where: { apiKey: apiKey } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -69,4 +69,4 @@ let UserService = {
     }
 };
 
-module.exports = UserService;
+module.exports = AuthTokenService;

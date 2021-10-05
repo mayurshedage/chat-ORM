@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
         createdBy: {
             type: DataTypes.STRING(100),
             allowNull: false,
+            defaultValue: 'API'
         },
         updatedBy: {
             type: DataTypes.STRING(100)
