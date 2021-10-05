@@ -2,9 +2,9 @@ require('dotenv').config();
 
 const cors = require('cors');
 const express = require('express');
-const database = require('./middlewares/db.connector');
+const database = require('./middlewares/dbconnector.mw');
 const { header, query } = require('express-validator');
-const validator = require('./middlewares/request.validate');
+const validator = require('./middlewares/validator.mw');
 
 const app = express();
 
