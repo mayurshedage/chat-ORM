@@ -1,33 +1,35 @@
 const express = require('express');
 const { body, header } = require('express-validator');
 const validator = require('../../middlewares/request.validate');
-const UserController = require('../../controllers/user/user.controller');
 const APIKeyController = require('../../controllers/apikey/apikey.controller');
 
 const router = express.Router();
 
 module.exports = (app) => {
-    router.get('/', UserController.findAll);
+    router.get('/', APIKeyController.findAll);
     router.post('/',
         [
-            body('uid').not().isEmpty(),
-            body('name').not().isEmpty()
+            body('name').not().isEmpty(),
+            body('scope').not().isEmpty()
         ],
         validator.showError,
-        UserController.create
+        APIKeyController.create
     );
 
     router
-        .route('/:uid')
-        .get(UserController.findOne)
+        .route('/:apiKey')
+        .get(APIKeyController.findOne)
         .put(
-            body('name').optional().not().isEmpty(),
+            [
+                body('name').optional().not().isEmpty(),
+                body('scope').optional().not().isEmpty()
+            ],
             validator.showError,
-            UserController.update
+            APIKeyController.update
         )
-        .delete(UserController.delete);
+        .delete(APIKeyController.delete);
 
-    app.use('/v1.0/users',
+    app.use('/v1.0/apikeys',
         header('apiKey').not().isEmpty(),
         validator.showError,
         APIKeyController.validate,

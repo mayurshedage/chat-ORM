@@ -67,7 +67,7 @@ exports.openConnection = async (req, res, next) => {
  *
  * @return
  */
-const _syncSchemaWithModel = async (db, sequelize, req, res, res) => {
+const _syncSchemaWithModel = async (db, sequelize, req, res, next) => {
     let throwErrorOnce = true;
     // Initalize redis connection
     const redisClient = Redis.createClient();
