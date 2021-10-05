@@ -48,55 +48,66 @@ exports.openConnection = async (req, res, next) => {
 
     dbModels[ON_DEMAND_DB] = db;
 
-    _syncDBWithModel(ON_DEMAND_DB, sequelize, req, res, next);
+    _syncSchemaWithModel(ON_DEMAND_DB, sequelize, req, res, next);
 };
 
-const _syncDBWithModel = async (db, sequelize, req, res, next) => {
+/**
+ * Summary: Run migration files
+ *
+ * Description: Function will execute the migration files when new migration files gets added in migrations folder present in rootDir
+ *
+ * @since      x.x.x
+ *
+ * @param {type}   db            Holding name of the current db instance
+ * @param {type}   sequelize     Sequelize connection object
+ * @param {type}   req           Express HTTP Request object
+ * @param {Object} res           Express HTTP Reponse object
+ * @param {type}   next          Call the next middleware function in the stack
+ *
+ *
+ * @return
+ */
+const _syncSchemaWithModel = async (db, sequelize, req, res, res) => {
     let throwErrorOnce = true;
+    // Initalize redis connection
     const redisClient = Redis.createClient();
 
     redisClient.on('error', (error) => {
-        if (error) {
-            if (throwErrorOnce) {
-                throwErrorOnce = false;
-                Helper.sendError({
-                    key: 'APP',
-                    code: 'ER_ECONNREFUSED',
-                    responder: res,
-                    trace: error
-                }, req.query.debug);
-            }
+        if (error && throwErrorOnce) {
+            Helper.sendError({
+                key: 'APP',
+                code: 'ER_ECONNREFUSED',
+                responder: res,
+                trace: error
+            }, req.query.debug);
+
+            throwErrorOnce = false;
         }
     }).on('connect', async () => {
+        // Get migrations hash from redis for current database
         redisClient.hget('migrations', db, async (error, data) => {
             if (data != null) { next(); return; };
 
             try {
+                // Sync existing model with database
                 await sequelize.sync({ alter: true });
-                try {
-                    const queryInterface = sequelize.getQueryInterface();
-                    await queryInterface.createTable('mysql_migrations_347ertt3e', {
-                        timestamp: {
-                            type: Sequelize.STRING,
-                            allowNull: false,
-                            unique: true
-                        }
-                    });
-                    exec("node migration.js up " + db, (error, stdout, stderr) => {
-                        console.log("1313");
-                        redisClient.hset('migrations', db, 1);
-                        next();
-                    });
-                } catch (error) {
-                    Helper.sendError({
-                        key: 'APP',
-                        code: 'ER_APP_NOT_FOUND',
-                        input: db,
-                        responder: res,
-                        statusCode: 404,
-                        trace: error
-                    }, req.query.debug);
-                }
+
+                // Create table if not exists in current database
+                const queryInterface = sequelize.getQueryInterface();
+                await queryInterface.createTable('mysql_migrations_347ertt3e', {
+                    timestamp: {
+                        type: Sequelize.STRING,
+                        allowNull: false,
+                        unique: true
+                    }
+                });
+
+                // Execute new migration files
+                exec("node migration.js up " + db, (error, stdout, stderr) => {
+                    // Set migrations hash from redis for current database
+                    redisClient.hset('migrations', db, 1);
+                    next();
+                });
             } catch (error) {
                 Helper.sendError({
                     key: 'APP',
