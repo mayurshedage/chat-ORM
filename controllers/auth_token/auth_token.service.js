@@ -3,11 +3,11 @@ let excludeColumns = ['apiKey', 'updatedAt', 'deletedAt'];
 
 let AuthTokenService = {
 
-    findAll: async (database) => {
-        const APIKeyModel = dbModels[database].apikey;
+    findAll: async () => {
+        const AuthTokenModel = dbModels['onDemandDB'].auth_token;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
+            AuthTokenModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -16,11 +16,11 @@ let AuthTokenService = {
         });
     },
 
-    findOne: async (database, apiKey) => {
-        const APIKeyModel = dbModels[database].apikey;
+    findOne: async (authToken) => {
+        const AuthTokenModel = dbModels['onDemandDB'].auth_token;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.findOne({ where: { apiKey: apiKey }, attributes: { exclude: excludeColumns }, raw: true })
+            AuthTokenModel.findOne({ where: { authToken: authToken }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -29,11 +29,11 @@ let AuthTokenService = {
         });
     },
 
-    create: async (database, body) => {
-        const APIKeyModel = dbModels[database].apikey;
+    create: async (body) => {
+        const AuthTokenModel = dbModels['onDemandDB'].auth_token;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.create(body)
+            AuthTokenModel.create(body)
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -42,11 +42,11 @@ let AuthTokenService = {
         });
     },
 
-    update: async (database, apiKey, body) => {
-        const APIKeyModel = dbModels[database].apikey;
+    update: async (authToken, body) => {
+        const AuthTokenModel = dbModels['onDemandDB'].auth_token;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.update(body, { where: { apiKey: apiKey } })
+            AuthTokenModel.update(body, { where: { authToken: authToken } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -55,11 +55,11 @@ let AuthTokenService = {
         });
     },
 
-    delete: async (database, apiKey) => {
-        const APIKeyModel = dbModels[database].apikey;
+    delete: async (authToken) => {
+        const AuthTokenModel = dbModels['onDemandDB'].auth_token;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.destroy({ where: { apiKey: apiKey } })
+            AuthTokenModel.destroy({ where: { authToken: authToken } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {

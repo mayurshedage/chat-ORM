@@ -5,7 +5,7 @@ const APIKeyController = require('../../controllers/apikey/apikey.controller');
 
 const router = express.Router();
 
-module.exports = (app) => {
+module.exports = (app, apiType) => {
     router.get('/', APIKeyController.findAll);
     router.post('/',
         [

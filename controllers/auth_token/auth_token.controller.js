@@ -1,17 +1,15 @@
 "use strict";
 
 const crypto = require('crypto');
-const Helper = require('../../helpers/response.handler');
+const Helper = require('../../helpers/response.helper');
 const UserService = require('../user/user.service');
 const AuthTokenService = require('./auth_token.service');
 
 let AuthTokenController = {
 
     findAll: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
-
         try {
-            let auth_tokens = await AuthTokenService.findAll(ON_DEMAND_DB);
+            let auth_tokens = await AuthTokenService.findAll();
             if (auth_tokens.length == 0) return res.status(200).json({ data: auth_tokens });
 
             let filterRows = [];
@@ -25,11 +23,10 @@ let AuthTokenController = {
     },
 
     findOne: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let req_auth_token = req.params.auth_token;
 
         try {
-            let auth_token = await AuthTokenService.findOne(ON_DEMAND_DB, req_auth_token);
+            let auth_token = await AuthTokenService.findOne(req_auth_token);
             if (auth_token) return res.status(200).json({ data: Helper.removeEmptyValues(auth_token) });
 
             Helper.sendError({
@@ -45,14 +42,15 @@ let AuthTokenController = {
     },
 
     create: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let tokenToCreate = req.body;
 
+        tokenToCreate.uid = req.params.uid;
+        tokenToCreate.apiKey = req.headers.apikey;
         tokenToCreate.authToken = crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
         tokenToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
-            let auth_token = await AuthTokenService.create(ON_DEMAND_DB, tokenToCreate);
+            let auth_token = await AuthTokenService.create(tokenToCreate);
 
             if (auth_token) return res.status(201).json({ data: Helper.removeEmptyValues(auth_token) });
         } catch (error) {
@@ -61,17 +59,16 @@ let AuthTokenController = {
     },
 
     update: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let req_auth_token = req.params.auth_token;
         let tokenToUpdate = req.body;
 
         tokenToUpdate.updatedAt = Math.floor(+new Date() / 1000);
 
         try {
-            let result = await AuthTokenService.update(ON_DEMAND_DB, req_auth_token, tokenToUpdate);
+            let result = await AuthTokenService.update(req_auth_token, tokenToUpdate);
 
             if (result) {
-                let auth_token = await AuthTokenService.findOne(ON_DEMAND_DB, req_auth_token);
+                let auth_token = await AuthTokenService.findOne(req_auth_token);
                 res.status(200).json({ data: Helper.removeEmptyValues(auth_token) });
             } else {
                 Helper.sendError({
@@ -88,11 +85,10 @@ let AuthTokenController = {
     },
 
     delete: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let req_auth_token = req.params.auth_token;
 
         try {
-            let result = await AuthTokenService.delete(ON_DEMAND_DB, req_auth_token);
+            let result = await AuthTokenService.delete(req_auth_token);
             if (result) {
                 Helper.sendResponse({
                     key: 'AUTH_TOKEN',
@@ -115,12 +111,29 @@ let AuthTokenController = {
         }
     },
 
+    validate: async (req, res, next) => {
+        let authToken = req.headers['authtoken'];
+
+        try {
+            let auth_token = await AuthTokenService.findOne(authToken);
+            if (!auth_token) return Helper.sendError({
+                key: 'AUTH_TOKEN',
+                input: authToken,
+                responder: res,
+                statusCode: 404,
+                code: 'ER_TOKEN_NOT_FOUND',
+            });
+            next();
+        } catch (error) {
+            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+        }
+    },
+
     checkUserExists: async (req, res, next) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
 
         try {
-            let user = await UserService.findOne(ON_DEMAND_DB, uid);
+            let user = await UserService.findOne(uid);
             if (!user) return Helper.sendError({
                 key: 'USER',
                 input: uid,

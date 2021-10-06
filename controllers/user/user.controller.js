@@ -1,15 +1,13 @@
 "use strict";
 
 const UserService = require('./user.service');
-const Helper = require('../../helpers/response.handler');
+const Helper = require('../../helpers/response.helper');
 
 let UserController = {
 
     findAll: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
-
         try {
-            let users = await UserService.findAll(ON_DEMAND_DB);
+            let users = await UserService.findAll();
             if (users.length == 0) return res.status(200).json({ data: users });
 
             let filterRows = [];
@@ -23,11 +21,10 @@ let UserController = {
     },
 
     findOne: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
 
         try {
-            let user = await UserService.findOne(ON_DEMAND_DB, uid);
+            let user = await UserService.findOne(uid);
             if (user) return res.status(200).json({ data: Helper.removeEmptyValues(user) });
 
             Helper.sendError({
@@ -43,13 +40,12 @@ let UserController = {
     },
 
     create: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let userToCreate = req.body;
 
         userToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
-            let user = await UserService.create(ON_DEMAND_DB, userToCreate);
+            let user = await UserService.create(userToCreate);
 
             if (user) return res.status(201).json({ data: Helper.removeEmptyValues(user) });
         } catch (error) {
@@ -67,15 +63,15 @@ let UserController = {
     },
 
     update: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
         let userToUpdate = req.body;
+
         userToUpdate.updatedAt = Math.floor(+new Date() / 1000);
 
         try {
-            let result = await UserService.update(ON_DEMAND_DB, uid, userToUpdate);
+            let result = await UserService.update(uid, userToUpdate);
             if (result) {
-                let user = await UserService.findOne(ON_DEMAND_DB, uid);
+                let user = await UserService.findOne(uid);
                 res.status(200).json({ data: Helper.removeEmptyValues(user) });
             } else {
                 Helper.sendError({
@@ -92,11 +88,10 @@ let UserController = {
     },
 
     delete: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let uid = req.params.uid;
 
         try {
-            let result = await UserService.delete(ON_DEMAND_DB, uid);
+            let result = await UserService.delete(uid);
             if (result) {
                 Helper.sendResponse({
                     key: 'USER',

@@ -3,8 +3,8 @@ let excludeColumns = ['createdBy', 'updatedAt', 'deletedAt'];
 
 let APIKeyService = {
 
-    findAll: async (database) => {
-        const APIKeyModel = dbModels[database].apikey;
+    findAll: async () => {
+        const APIKeyModel = dbModels['onDemandDB'].apikey;
 
         return new Promise(function (resolve, reject) {
             APIKeyModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
@@ -16,8 +16,8 @@ let APIKeyService = {
         });
     },
 
-    findOne: async (database, apiKey) => {
-        const APIKeyModel = dbModels[database].apikey;
+    findOne: async (apiKey) => {
+        const APIKeyModel = dbModels['onDemandDB'].apikey;
 
         return new Promise(function (resolve, reject) {
             APIKeyModel.findOne({ where: { apiKey: apiKey }, attributes: { exclude: excludeColumns }, raw: true })
@@ -29,8 +29,8 @@ let APIKeyService = {
         });
     },
 
-    create: async (database, body) => {
-        const APIKeyModel = dbModels[database].apikey;
+    create: async (body) => {
+        const APIKeyModel = dbModels['onDemandDB'].apikey;
 
         return new Promise(function (resolve, reject) {
             APIKeyModel.create(body)
@@ -42,8 +42,8 @@ let APIKeyService = {
         });
     },
 
-    update: async (database, apiKey, body) => {
-        const APIKeyModel = dbModels[database].apikey;
+    update: async (apiKey, body) => {
+        const APIKeyModel = dbModels['onDemandDB'].apikey;
         console.log(body);
         console.log(apiKey);
         return new Promise(function (resolve, reject) {
@@ -56,8 +56,8 @@ let APIKeyService = {
         });
     },
 
-    delete: async (database, apiKey) => {
-        const APIKeyModel = dbModels[database].apikey;
+    delete: async (apiKey) => {
+        const APIKeyModel = dbModels['onDemandDB'].apikey;
 
         return new Promise(function (resolve, reject) {
             APIKeyModel.destroy({ where: { apiKey: apiKey } })

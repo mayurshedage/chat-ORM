@@ -2,9 +2,7 @@ require('dotenv').config();
 
 const cors = require('cors');
 const express = require('express');
-const database = require('./middlewares/dbconnector.mw');
-const { header, query } = require('express-validator');
-const validator = require('./middlewares/validator.mw');
+const Helper = require('./helpers/dbconnector.helper');
 
 const app = express();
 
@@ -15,27 +13,28 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-app.use(
-    [
-        header(['app_id']).not().isEmpty(),
-        query(['debug']).optional().not().isEmpty().custom((value, { req }) => {
-            if (req.query.debugCode !== process.env.DEBUG_HASH) {
-                throw new Error('OOps! incorrect `debugCode`. Please verify the `debugCode` in query params.');
-            } else {
-                return true;
-            }
-        })
-    ],
-    validator.showError,
-    database.openConnection
-);
-
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     try {
         const url = req.url;
+        const hostName = req.headers.host;
+
+        const regx = new RegExp(/^([a-zA-Z0-9]+)\.(api)\-([a-z]+)\.([a-z]+)\.([a-z])/gm);
+        const checkHost = regx.test(hostName); // appid100.api-client.cometondemand.com - success
+
+        if (!checkHost) throw new Error('Request URL not found' + hostName);
+
+        const appInfo = hostName.split(".");
+        const appId = appInfo[0];
+        const apiType = appInfo[1].split("-")[1];
+
+        if (![process.env.US_REGION, process.env.CLIENT_REGION].includes(apiType)) throw new Error('Request URL not found' + apiType);
+
         const routePath = url.split("?").shift();
-        require('./routes/' + routePath.split('/')[1] + '/' + routePath.split('/')[2].slice(0, -1) + '.route')(app);
-        next();
+
+        await Helper.configureDBConnection(appId, apiType, req, res, () => {
+            require('./routes/' + routePath.split('/')[1] + '/' + routePath.split('/')[2].slice(0, -1) + '.route')(app, apiType);
+            next();
+        });
     } catch (error) {
         console.log(error);
         res.status(404).send('Request URL not found');

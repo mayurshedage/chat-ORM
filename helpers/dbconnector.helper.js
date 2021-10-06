@@ -1,16 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 const Redis = require('redis');
-const { exec } = require("child_process");
-const { Sequelize, Model } = require('sequelize');
 const dbModels = require('../models');
+const { exec } = require("child_process");
+const Helper = require('./response.helper');
+const { Sequelize, Model } = require('sequelize');
 const modelsDir = path.join(__dirname, '../models');
-const Helper = require('../helpers/response.handler');
 
 require('dotenv').config();
 
-exports.openConnection = async (req, res, next) => {
-    const ON_DEMAND_DB = req.headers['app_id'];
+exports.configureDBConnection = async (appId, apiType, req, res, callback) => {
+    const ON_DEMAND_DB = appId;
 
     const db = {};
     let sequelize;
@@ -45,10 +45,11 @@ exports.openConnection = async (req, res, next) => {
 
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
+    db.apiType = apiType;
 
-    dbModels[ON_DEMAND_DB] = db;
+    dbModels['onDemandDB'] = db;
 
-    _syncSchemaWithModel(ON_DEMAND_DB, sequelize, req, res, next);
+    _syncSchemaWithModel(ON_DEMAND_DB, sequelize, req, res, callback);
 };
 
 /**
@@ -67,7 +68,7 @@ exports.openConnection = async (req, res, next) => {
  *
  * @return
  */
-const _syncSchemaWithModel = async (db, sequelize, req, res, next) => {
+const _syncSchemaWithModel = async (db, sequelize, req, res, callback) => {
     let throwErrorOnce = true;
     // Initalize redis connection
     const redisClient = Redis.createClient();
@@ -86,7 +87,7 @@ const _syncSchemaWithModel = async (db, sequelize, req, res, next) => {
     }).on('connect', async () => {
         // Get migrations hash from redis for current database
         redisClient.hget('migrations', db, async (error, data) => {
-            if (data != null) { next(); return; };
+            if (data != null) { callback(); return; };
 
             try {
                 // Sync existing model with database
@@ -106,7 +107,7 @@ const _syncSchemaWithModel = async (db, sequelize, req, res, next) => {
                 exec("node migration.js up " + db, (error, stdout, stderr) => {
                     // Set migrations hash from redis for current database
                     redisClient.hset('migrations', db, 1);
-                    next();
+                    callback();
                 });
             } catch (error) {
                 Helper.sendError({

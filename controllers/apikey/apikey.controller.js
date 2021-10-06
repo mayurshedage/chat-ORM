@@ -2,15 +2,13 @@
 
 const crypto = require('crypto');
 const APIKeyService = require('./apikey.service');
-const Helper = require('../../helpers/response.handler');
+const Helper = require('../../helpers/response.helper');
 
 let APIKeyController = {
 
     findAll: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
-
         try {
-            let apikeys = await APIKeyService.findAll(ON_DEMAND_DB);
+            let apikeys = await APIKeyService.findAll();
             if (apikeys.length == 0) return res.status(200).json({ data: apikeys });
 
             let filterRows = [];
@@ -24,11 +22,10 @@ let APIKeyController = {
     },
 
     findOne: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let req_apikey = req.params.apiKey;
 
         try {
-            let apikey = await APIKeyService.findOne(ON_DEMAND_DB, req_apikey);
+            let apikey = await APIKeyService.findOne(req_apikey);
             if (apikey) return res.status(200).json({ data: Helper.removeEmptyValues(apikey) });
 
             Helper.sendError({
@@ -44,14 +41,13 @@ let APIKeyController = {
     },
 
     create: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let keyToCreate = req.body;
 
         keyToCreate.apiKey = crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
         keyToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
-            let apikey = await APIKeyService.create(ON_DEMAND_DB, keyToCreate);
+            let apikey = await APIKeyService.create(keyToCreate);
 
             if (apikey) return res.status(201).json({ data: Helper.removeEmptyValues(apikey) });
         } catch (error) {
@@ -60,17 +56,16 @@ let APIKeyController = {
     },
 
     update: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let req_apikey = req.params.apiKey;
         let keyToUpdate = req.body;
 
         keyToUpdate.updatedAt = Math.floor(+new Date() / 1000);
 
         try {
-            let result = await APIKeyService.update(ON_DEMAND_DB, req_apikey, keyToUpdate);
+            let result = await APIKeyService.update(req_apikey, keyToUpdate);
 
             if (result) {
-                let apikey = await APIKeyService.findOne(ON_DEMAND_DB, req_apikey);
+                let apikey = await APIKeyService.findOne(req_apikey);
                 res.status(200).json({ data: Helper.removeEmptyValues(apikey) });
             } else {
                 Helper.sendError({
@@ -87,11 +82,10 @@ let APIKeyController = {
     },
 
     delete: async (req, res) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let req_apikey = req.params.apiKey;
 
         try {
-            let result = await APIKeyService.delete(ON_DEMAND_DB, req_apikey);
+            let result = await APIKeyService.delete(req_apikey);
             if (result) {
                 Helper.sendResponse({
                     key: 'API_KEY',
@@ -115,11 +109,10 @@ let APIKeyController = {
     },
 
     validate: async (req, res, next) => {
-        let ON_DEMAND_DB = req.headers['app_id'];
         let apiKey = req.headers.apikey;
 
         try {
-            let apikey = await APIKeyService.findOne(ON_DEMAND_DB, apiKey);
+            let apikey = await APIKeyService.findOne(apiKey);
             if (!apikey) return Helper.sendError({
                 key: 'API_KEY',
                 input: apiKey,
