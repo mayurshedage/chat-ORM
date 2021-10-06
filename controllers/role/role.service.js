@@ -1,13 +1,13 @@
 const dbModels = require('../../models');
-let excludeColumns = ['createdBy', 'updatedAt', 'deletedAt'];
+let excludeColumns = ['createdBy', 'updatedAt', 'updatedBy'];
 
-let APIKeyService = {
+let RoleService = {
 
     findAll: async () => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
+        const RoleModel = dbModels['onDemandDB'].role;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
+            RoleModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -16,11 +16,11 @@ let APIKeyService = {
         });
     },
 
-    findOne: async (apiKey) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
+    findOne: async (role) => {
+        const RoleModel = dbModels['onDemandDB'].role;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.findOne({ where: { apiKey: apiKey }, attributes: { exclude: excludeColumns }, raw: true })
+            RoleModel.findOne({ where: { role: role }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -30,10 +30,10 @@ let APIKeyService = {
     },
 
     create: async (body) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
+        const RoleModel = dbModels['onDemandDB'].role;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.create(body)
+            RoleModel.create(body)
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -42,11 +42,11 @@ let APIKeyService = {
         });
     },
 
-    update: async (apiKey, body) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
+    update: async (role, body) => {
+        const RoleModel = dbModels['onDemandDB'].role;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.update(body, { where: { apiKey: apiKey } })
+            RoleModel.update(body, { where: { role: role } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -55,11 +55,11 @@ let APIKeyService = {
         });
     },
 
-    delete: async (apiKey) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
+    delete: async (role) => {
+        const RoleModel = dbModels['onDemandDB'].role;
 
         return new Promise(function (resolve, reject) {
-            APIKeyModel.destroy({ where: { apiKey: apiKey } })
+            RoleModel.destroy({ where: { role: role } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -69,4 +69,4 @@ let APIKeyService = {
     }
 };
 
-module.exports = APIKeyService;
+module.exports = RoleService;

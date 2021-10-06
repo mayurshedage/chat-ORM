@@ -11,6 +11,11 @@ exports.Messages = (params) => {
             'ER_USER_NOT_FOUND': `User with uid ${params} doesn't exists.`,
             'MSG_USER_DELETED': `User ${params} has been deleted successfully.`,
         },
+        ROLE: {
+            'ER_DUP_ENTRY': `Role ${params} already exists.`,
+            'ER_ROLE_NOT_FOUND': `Role ${params} doesn't exists.`,
+            'MSG_ROLE_DELETED': `Role ${params} has been deleted successfully.`,
+        },
         API_KEY: {
             'ER_AUTH_NO_ACCESS': `The Key ${params} cannot be used to perform this operation. Please use API key with a correct scope to perform the operation.`,
             'ER_API_KEY_NOT_FOUND': `The Key ${params} doesn't exists.`,
