@@ -67,13 +67,13 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: { name: 'guid', allowNull: false },
             targetKey: 'guid',
             onDelete: 'cascade',
-            onUpdate: 'restrict'
+            onUpdate: 'cascade'
         });
         GroupUser.belongsTo(models.user, {
             foreignKey: { name: 'uid', allowNull: false },
             targetKey: 'uid',
             onDelete: 'cascade',
-            onUpdate: 'restrict'
+            onUpdate: 'cascade'
         });
     };
     return GroupUser;

@@ -3,6 +3,7 @@ const { body, header } = require('express-validator');
 const validator = require('../../../middlewares/validator.mw');
 const GroupController = require('../../../controllers/group/group.controller');
 const APIKeyController = require('../../../controllers/apikey/apikey.controller');
+const GroupUserController = require('../../../controllers/group_user/group_user.controller');
 
 const router = express.Router();
 
@@ -36,6 +37,38 @@ module.exports = (app) => {
             GroupController.update
         )
         .delete(GroupController.delete);
+
+    router
+        .route('/:guid/members')
+        .get(GroupUserController.findAll)
+        .post(
+            [
+                body('uid').not().isEmpty(),
+                body('scope').not().isEmpty().custom(value => {
+                    if (['admin', 'participant', 'moderator'].indexOf(value) == -1) throw new Error('Invalid scope');
+                    return true;
+                })
+            ],
+            validator.showError,
+            GroupUserController.create
+        )
+
+    router
+        .route('/:guid/members/:uid')
+        .get(GroupUserController.findOne)
+        .put(
+            [
+                body('scope').not().isEmpty().custom(value => {
+                    if (['admin', 'participant', 'moderator'].indexOf(value) == -1) throw new Error('Invalid scope');
+                    return true;
+                })
+            ],
+            validator.showError,
+            GroupUserController.update
+        )
+        .delete(GroupUserController.delete)
+
+    router.param('guid', GroupUserController.checkGroupExists);
 
     app.use('/v1.0/groups',
         header('apiKey').not().isEmpty(),

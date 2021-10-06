@@ -16,6 +16,11 @@ exports.Messages = (params) => {
             'ER_GROUP_NOT_FOUND': `Group with guid ${params} doesn't exists.`,
             'MSG_GROUP_DELETED': `Group ${params} has been deleted successfully.`,
         },
+        GROUP_USER: {
+            'ER_DUP_ENTRY': `Group user with uid ${params} is already part of this group.`,
+            'ER_GROUP_USER_NOT_FOUND': `Group user with uid ${params} doesn't seems to be a part of this group.`,
+            'MSG_GROUP_USER_KICKED': `Group user ${params} has been kicked successfully from this group.`,
+        },
         ROLE: {
             'ER_DUP_ENTRY': `Role ${params} already exists.`,
             'ER_ROLE_NOT_FOUND': `Role ${params} doesn't exists.`,
