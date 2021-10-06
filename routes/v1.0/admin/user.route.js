@@ -1,9 +1,9 @@
 const express = require('express');
 const { body, header } = require('express-validator');
-const validator = require('../../middlewares/validator.mw');
-const UserController = require('../../controllers/user/user.controller');
-const APIKeyController = require('../../controllers/apikey/apikey.controller');
-const AuthTokenController = require('../../controllers/auth_token/auth_token.controller');
+const validator = require('../../../middlewares/validator.mw');
+const UserController = require('../../../controllers/user/user.controller');
+const APIKeyController = require('../../../controllers/apikey/apikey.controller');
+const AuthTokenController = require('../../../controllers/auth_token/auth_token.controller');
 
 const router = express.Router();
 

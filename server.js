@@ -15,7 +15,6 @@ app.use(express.urlencoded({
 
 app.use(async (req, res, next) => {
     try {
-        const url = req.url;
         const hostName = req.headers.host;
 
         const regx = new RegExp(/^([a-zA-Z0-9]+)\.(api)\-([a-z]+)\.([a-z]+)\.([a-z])/gm);
@@ -29,11 +28,10 @@ app.use(async (req, res, next) => {
 
         if (![process.env.US_REGION, process.env.CLIENT_REGION].includes(apiType)) throw new Error('Request URL not found' + apiType);
 
-        const routePath = url.split("?").shift();
+        req['apiType'] = apiType;
 
         await Helper.configureDBConnection(appId, apiType, req, res, () => {
-            require('./routes/' + routePath.split('/')[1] + '/' + routePath.split('/')[2].slice(0, -1) + '.route')(app, apiType);
-            next();
+            require('./routes/index')(app, req, res, next);
         });
     } catch (error) {
         console.log(error);
