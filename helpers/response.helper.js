@@ -1,4 +1,4 @@
-const responseMessages = require('../constants/errors');
+const responseMessages = require('../constants/response.c');
 
 exports.sendResponse = (params = {}) => {
     let key = params['key'];
