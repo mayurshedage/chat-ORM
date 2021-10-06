@@ -17,11 +17,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 'private'
         },
+        password: {
+            type: DataTypes.STRING(255)
+        },
         icon: {
             type: DataTypes.STRING(3000)
-        },
-        role: {
-            type: DataTypes.STRING(50)
         },
         description: {
             type: DataTypes.STRING(255)
@@ -37,16 +37,12 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
-        createdBy: {
-            type: DataTypes.STRING(100),
+        createdAt: {
+            type: DataTypes.INTEGER(11),
             allowNull: false,
         },
         updatedBy: {
             type: DataTypes.STRING(100)
-        },
-        createdAt: {
-            type: DataTypes.INTEGER(11),
-            allowNull: false,
         },
         updatedAt: {
             type: DataTypes.INTEGER(11)
@@ -84,8 +80,8 @@ module.exports = (sequelize, DataTypes) => {
         Group.belongsTo(models.user, {
             foreignKey: { name: 'owner', allowNull: false },
             targetKey: 'uid',
-            onDelete: 'cascade',
-            onUpdate: 'restrict'
+            onDelete: 'set null',
+            onUpdate: 'cascade'
         });
     };
     return Group;

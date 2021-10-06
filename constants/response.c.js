@@ -11,6 +11,11 @@ exports.Messages = (params) => {
             'ER_USER_NOT_FOUND': `User with uid ${params} doesn't exists.`,
             'MSG_USER_DELETED': `User ${params} has been deleted successfully.`,
         },
+        GROUP: {
+            'ER_DUP_ENTRY': `Group with guid ${params} already exists.`,
+            'ER_GROUP_NOT_FOUND': `Group with guid ${params} doesn't exists.`,
+            'MSG_GROUP_DELETED': `Group ${params} has been deleted successfully.`,
+        },
         ROLE: {
             'ER_DUP_ENTRY': `Role ${params} already exists.`,
             'ER_ROLE_NOT_FOUND': `Role ${params} doesn't exists.`,
