@@ -4,6 +4,7 @@ const validator = require('../../../middlewares/validator.mw');
 const GroupController = require('../../../controllers/group/group.controller');
 const APIKeyController = require('../../../controllers/apikey/apikey.controller');
 const GroupUserController = require('../../../controllers/group_user/group_user.controller');
+const GroupBannedUserController = require('../../../controllers/group_user/bannedusers.controller');
 
 const router = express.Router();
 
@@ -67,6 +68,15 @@ module.exports = (app) => {
             GroupUserController.update
         )
         .delete(GroupUserController.delete)
+
+    router
+        .route('/:guid/bannedusers')
+        .get(GroupBannedUserController.findAll)
+
+    router
+        .route('/:guid/bannedusers/:uid')
+        .post(GroupBannedUserController.update)
+        .delete(GroupBannedUserController.delete)
 
     router.param('guid', GroupUserController.checkGroupExists);
 

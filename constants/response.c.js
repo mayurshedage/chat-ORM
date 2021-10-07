@@ -20,6 +20,8 @@ exports.Messages = (params) => {
             'ER_DUP_ENTRY': `Group user with uid ${params} is already part of this group.`,
             'ER_GROUP_USER_NOT_FOUND': `Group user with uid ${params} doesn't seems to be a part of this group.`,
             'MSG_GROUP_USER_KICKED': `Group user ${params} has been kicked successfully from this group.`,
+            'MSG_GROUP_USER_BANNED': `Group user ${params} is banned from a group.`,
+            'MSG_GROUP_USER_UNBANNED': `Group user ${params} is banned from a group.`,
         },
         ROLE: {
             'ER_DUP_ENTRY': `Role ${params} already exists.`,
