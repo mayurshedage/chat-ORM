@@ -3,11 +3,12 @@ let excludeColumns = ['password', 'updatedBy', 'updatedAt'];
 
 let GroupService = {
 
-    findAll: async () => {
+    findAll: async (whereClauseAddOn = {}) => {
         const GroupModel = dbModels['onDemandDB'].group;
+        const whereClause = {};
 
         return new Promise(function (resolve, reject) {
-            GroupModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
+            GroupModel.findAll({ where: { ...whereClause, ...whereClauseAddOn }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
