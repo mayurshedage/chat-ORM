@@ -144,6 +144,8 @@ let GroupUserController = {
                     statusCode: 200,
                     code: 'MSG_GROUP_USER_KICKED',
                 });
+                let groups = await GroupUserService.findAll(req_guid);
+                await GroupService.update(req_guid, { membersCount: groups.length });
             } else {
                 Helper.sendError({
                     key: 'GROUP_USER',
