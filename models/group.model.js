@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     Group.associate = function (models) {
         Group.belongsTo(models.user, {
-            foreignKey: { name: 'owner', allowNull: false },
+            foreignKey: { name: 'owner' },
             targetKey: 'uid',
             onDelete: 'set null',
             onUpdate: 'cascade'
