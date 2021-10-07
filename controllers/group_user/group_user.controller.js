@@ -8,8 +8,10 @@ const Helper = require('../../helpers/response.helper');
 let GroupUserController = {
 
     findAll: async (req, res) => {
+        let req_guid = req.params.guid;
+
         try {
-            let group_users = await GroupUserService.findAll();
+            let group_users = await GroupUserService.findAll(req_guid);
             if (group_users.length == 0) return res.status(200).json({ data: group_users });
 
             let filterRows = [];
@@ -43,9 +45,9 @@ let GroupUserController = {
     },
 
     create: async (req, res) => {
-        let addUserToGroup = {};
         let req_uid = req.body.uid;
         let req_guid = req.params.guid;
+        let addUserToGroup = req.body;
 
         if (req_uid) {
             const user = await UserService.findOne(req_uid);
@@ -58,15 +60,19 @@ let GroupUserController = {
             });
         }
 
-        addUserToGroup.guid = req_guid;
         addUserToGroup.uid = req_uid;
-        addUserToGroup.scope = req.body['scope'] || 'participant';
+        addUserToGroup.guid = req_guid;
         addUserToGroup.joinedAt = Math.floor(+new Date() / 1000);
 
         try {
             let group_user = await GroupUserService.create(addUserToGroup);
 
-            if (group_user) return res.status(201).json({ data: Helper.removeEmptyValues(group_user) });
+            if (group_user) {
+                res.status(201).json({ data: Helper.removeEmptyValues(group_user) });
+
+                let groups = await GroupUserService.findAll(req_guid);
+                return await GroupService.update(req_guid, { membersCount: groups.length });
+            }
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                 return Helper.sendError({

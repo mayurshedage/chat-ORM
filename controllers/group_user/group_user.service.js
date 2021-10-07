@@ -3,11 +3,11 @@ let excludeColumns = ['deletedAt'];
 
 let GroupUserService = {
 
-    findAll: async () => {
+    findAll: async (guid) => {
         const GroupUserModel = dbModels['onDemandDB'].group_user;
 
         return new Promise(function (resolve, reject) {
-            GroupUserModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
+            GroupUserModel.findAll({ where: { guid: guid }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
