@@ -1,10 +1,10 @@
 const dbModels = require('../../models');
+const GroupUserModel = dbModels['onDemandDB'].group_user;
 let excludeColumns = ['deletedAt'];
 
 let GroupUserService = {
 
     findAll: async (guid, whereAddOn = {}) => {
-        const GroupUserModel = dbModels['onDemandDB'].group_user;
         const whereClause = { guid: guid };
 
         return new Promise(function (resolve, reject) {
@@ -18,7 +18,6 @@ let GroupUserService = {
     },
 
     findOne: async (guid, uid) => {
-        const GroupUserModel = dbModels['onDemandDB'].group_user;
 
         return new Promise(function (resolve, reject) {
             GroupUserModel.findOne({ where: { guid: guid, uid: uid }, attributes: { exclude: excludeColumns }, raw: true })
@@ -31,7 +30,6 @@ let GroupUserService = {
     },
 
     create: async (body) => {
-        const GroupUserModel = dbModels['onDemandDB'].group_user;
 
         return new Promise(function (resolve, reject) {
             GroupUserModel.create(body)
@@ -44,7 +42,6 @@ let GroupUserService = {
     },
 
     update: async (guid, uid, body) => {
-        const GroupUserModel = dbModels['onDemandDB'].group_user;
 
         return new Promise(function (resolve, reject) {
             GroupUserModel.update(body, { where: { guid: guid, uid: uid } })
@@ -57,7 +54,6 @@ let GroupUserService = {
     },
 
     delete: async (guid, uid) => {
-        const GroupUserModel = dbModels['onDemandDB'].group_user;
 
         return new Promise(function (resolve, reject) {
             GroupUserModel.destroy({ where: { guid: guid, uid: uid } })

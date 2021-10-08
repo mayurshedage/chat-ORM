@@ -2,13 +2,14 @@
 
 const GroupService = require('./group.service');
 const UserService = require('../user/user.service');
+const GroupTagService = require('../group_tag/group_tag.service');
 const Helper = require('../../helpers/response.helper');
 
 let GroupController = {
 
     findAll: async (req, res) => {
         try {
-            let groups = await GroupService.findAll();
+            let groups = await GroupService.findAll(req);
             if (groups.length == 0) return res.status(200).json({ data: groups });
 
             let filterRows = [];
@@ -41,6 +42,7 @@ let GroupController = {
     },
 
     create: async (req, res) => {
+        let tags = [];
         let groupToCreate = req.body;
 
         if (req.body['owner']) {
@@ -54,12 +56,26 @@ let GroupController = {
             });
         }
         groupToCreate.createdAt = Math.floor(+new Date() / 1000);
+        let addedAt = Math.floor(+new Date() / 1000);
 
         try {
             let group = await GroupService.create(groupToCreate);
 
-            if (group) return res.status(201).json({ data: Helper.removeEmptyValues(group) });
+            if (group) res.status(201).json({ data: Helper.removeEmptyValues(group) });
+
+            if (req.body.tags && req.body.tags.length) {
+                if (typeof req.body.tags == 'string') {
+                    tags.push({ guid: group.guid, tag: req.body.tags, addedAt: addedAt })
+                } else if (typeof req.body.tags == 'object') {
+                    req.body.tags.map(tag => {
+                        return tags.push({ guid: group.guid, tag: tag, addedAt: addedAt });
+                    });
+                }
+                if (tags.length) return await GroupTagService.bulkCreate(tags);
+            }
+            if (tags.length) await GroupTagService.bulkCreate({ tag: tags });
         } catch (error) {
+            console.log(error);
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                 return Helper.sendError({
                     key: 'GROUP',
@@ -74,6 +90,7 @@ let GroupController = {
     },
 
     update: async (req, res) => {
+        let tags = [];
         let guid = req.params.guid;
         let groupToUpdate = req.body;
 
@@ -88,12 +105,27 @@ let GroupController = {
             });
         }
         groupToUpdate.updatedAt = Math.floor(+new Date() / 1000);
+        let addedAt = Math.floor(+new Date() / 1000);
 
         try {
             let result = await GroupService.update(guid, groupToUpdate);
             if (result) {
                 let group = await GroupService.findOne(guid);
                 res.status(200).json({ data: Helper.removeEmptyValues(group) });
+
+                if (req.body.tags && req.body.tags.length) {
+                    if (typeof req.body.tags == 'string') {
+                        tags.push({ guid: group.guid, tag: req.body.tags, addedAt: addedAt })
+                    } else if (typeof req.body.tags == 'object') {
+                        req.body.tags.map(tag => {
+                            return tags.push({ guid: group.guid, tag: tag, addedAt: addedAt });
+                        });
+                    }
+                    if (tags.length) {
+                        await GroupTagService.delete(guid);
+                        await GroupTagService.bulkCreate(tags);
+                    }
+                }
             } else {
                 Helper.sendError({
                     key: 'GROUP',

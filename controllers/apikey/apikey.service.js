@@ -1,11 +1,10 @@
 const dbModels = require('../../models');
+const APIKeyModel = dbModels['onDemandDB'].apikey;
 let excludeColumns = ['createdBy', 'updatedAt', 'deletedAt'];
 
 let APIKeyService = {
 
     findAll: async () => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
-
         return new Promise(function (resolve, reject) {
             APIKeyModel.findAll({ attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
@@ -17,8 +16,6 @@ let APIKeyService = {
     },
 
     findOne: async (apiKey) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
-
         return new Promise(function (resolve, reject) {
             APIKeyModel.findOne({ where: { apiKey: apiKey }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
@@ -30,8 +27,6 @@ let APIKeyService = {
     },
 
     create: async (body) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
-
         return new Promise(function (resolve, reject) {
             APIKeyModel.create(body)
                 .then(data => {
@@ -43,8 +38,6 @@ let APIKeyService = {
     },
 
     update: async (apiKey, body) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
-
         return new Promise(function (resolve, reject) {
             APIKeyModel.update(body, { where: { apiKey: apiKey } })
                 .then(data => {
@@ -56,8 +49,6 @@ let APIKeyService = {
     },
 
     delete: async (apiKey) => {
-        const APIKeyModel = dbModels['onDemandDB'].apikey;
-
         return new Promise(function (resolve, reject) {
             APIKeyModel.destroy({ where: { apiKey: apiKey } })
                 .then(data => {
