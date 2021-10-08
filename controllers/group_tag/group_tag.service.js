@@ -1,27 +1,11 @@
 const dbModels = require('../../models');
-let excludeColumns = [];
+const GroupTagModel = dbModels['onDemandDB'].group_tag;
 
 let GroupTagService = {
 
-    findAll: async (whereClauseAddOn = {}) => {
-        const GroupTagModel = dbModels['onDemandDB'].group_tag;
-        const whereClause = {};
-
+    bulkCreate: async (body) => {
         return new Promise(function (resolve, reject) {
-            GroupTagModel.findAll({ where: { ...whereClause, ...whereClauseAddOn }, attributes: { exclude: excludeColumns }, raw: true })
-                .then(data => {
-                    resolve(data);
-                }).catch(err => {
-                    reject(err);
-                });
-        });
-    },
-
-    create: async (body) => {
-        const GroupTagModel = dbModels['onDemandDB'].group_tag;
-
-        return new Promise(function (resolve, reject) {
-            GroupTagModel.create(body)
+            GroupTagModel.bulkCreate(body, { returning: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -31,8 +15,6 @@ let GroupTagService = {
     },
 
     delete: async (guid) => {
-        const GroupTagModel = dbModels['onDemandDB'].group_tag;
-
         return new Promise(function (resolve, reject) {
             GroupTagModel.destroy({ where: { guid: guid } })
                 .then(data => {
