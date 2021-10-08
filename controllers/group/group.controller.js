@@ -7,13 +7,8 @@ const Helper = require('../../helpers/response.helper');
 let GroupController = {
 
     findAll: async (req, res) => {
-        let whereClause = {};
-
-        if (req.query.type) {
-            whereClause = { type: req.query.type }
-        }
         try {
-            let groups = await GroupService.findAll(whereClause);
+            let groups = await GroupService.findAll(req);
             if (groups.length == 0) return res.status(200).json({ data: groups });
 
             let filterRows = [];

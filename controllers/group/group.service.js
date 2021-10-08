@@ -1,24 +1,53 @@
 const dbModels = require('../../models');
+const Op = dbModels['onDemandDB'].Sequelize.Op;
+const GroupModel = dbModels['onDemandDB'].group;
+const GroupTagModel = dbModels['onDemandDB'].group_tag;
+
 let excludeColumns = ['password', 'updatedBy', 'updatedAt'];
+let excludeColumnsGroupTag = ['guid', 'tag', 'addedAt'];
 
 let GroupService = {
 
-    findAll: async (whereClauseAddOn = {}) => {
-        const GroupModel = dbModels['onDemandDB'].group;
-        const whereClause = {};
+    findAll: async (req) => {
+        let tags = [];
+        let whereClauseGroup = {};
+        let whereClauseGroupTag = {};
+
+        if (req.query.type) {
+            whereClauseGroup = { type: req.query.type }
+        }
+        if (req.query.tags && req.query.tags.length) {
+            if (typeof req.query.tags == 'string') {
+                whereClauseGroupTag[Op.or] = [{ tag: req.query.tags }];
+            } else {
+                req.query.tags.map(tag => {
+                    return tags.push({ tag: tag });
+                });
+                whereClauseGroupTag[Op.or] = tags;
+            }
+        }
 
         return new Promise(function (resolve, reject) {
-            GroupModel.findAll({ where: { ...whereClause, ...whereClauseAddOn }, attributes: { exclude: excludeColumns }, raw: true })
+            GroupModel.findAll({
+                where: whereClauseGroup,
+                include: {
+                    model: GroupTagModel,
+                    where: whereClauseGroupTag,
+                    attributes: { exclude: excludeColumnsGroupTag }
+                },
+                attributes: { exclude: excludeColumns },
+                raw: true
+            })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
+                    console.log(err);
                     reject(err);
                 });
         });
     },
 
     findOne: async (guid) => {
-        const GroupModel = dbModels['onDemandDB'].group;
 
         return new Promise(function (resolve, reject) {
             GroupModel.findOne({ where: { guid: guid }, attributes: { exclude: excludeColumns }, raw: true })
@@ -31,7 +60,6 @@ let GroupService = {
     },
 
     create: async (body) => {
-        const GroupModel = dbModels['onDemandDB'].group;
 
         return new Promise(function (resolve, reject) {
             GroupModel.create(body)
@@ -44,7 +72,6 @@ let GroupService = {
     },
 
     update: async (guid, body) => {
-        const GroupModel = dbModels['onDemandDB'].group;
 
         return new Promise(function (resolve, reject) {
             GroupModel.update(body, { where: { guid: guid } })
@@ -57,7 +84,6 @@ let GroupService = {
     },
 
     delete: async (guid) => {
-        const GroupModel = dbModels['onDemandDB'].group;
 
         return new Promise(function (resolve, reject) {
             GroupModel.destroy({ where: { guid: guid } })

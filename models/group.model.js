@@ -83,6 +83,7 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'set null',
             onUpdate: 'cascade'
         });
+        Group.hasMany(models.group_tag, { foreignKey: 'guid' });
     };
     return Group;
 };
