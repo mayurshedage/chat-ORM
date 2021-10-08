@@ -1,11 +1,10 @@
 const dbModels = require('../../models');
+const UserSchema = dbModels['onDemandDB'].user;
 let excludeColumns = ['lastActiveAt', 'statusMessage', 'credits', 'createdBy', 'updatedBy', 'deletedBy', 'updatedAt', 'deletedAt'];
 
 let UserService = {
 
     findAll: async () => {
-        const UserSchema = dbModels['onDemandDB'].user;
-
         return new Promise(function (resolve, reject) {
             UserSchema.findAll({ attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
@@ -17,8 +16,6 @@ let UserService = {
     },
 
     findOne: async (uid) => {
-        const UserSchema = dbModels['onDemandDB'].user;
-
         return new Promise(function (resolve, reject) {
             UserSchema.findOne({ where: { uid: uid }, attributes: { exclude: excludeColumns }, raw: true })
                 .then(data => {
@@ -30,8 +27,6 @@ let UserService = {
     },
 
     create: async (body) => {
-        const UserSchema = dbModels['onDemandDB'].user;
-
         return new Promise(function (resolve, reject) {
             UserSchema.create(body)
                 .then(data => {
@@ -43,8 +38,6 @@ let UserService = {
     },
 
     update: async (uid, body) => {
-        const UserSchema = dbModels['onDemandDB'].user;
-
         return new Promise(function (resolve, reject) {
             UserSchema.update(body, { where: { uid: uid } })
                 .then(data => {
@@ -56,8 +49,6 @@ let UserService = {
     },
 
     delete: async (uid) => {
-        const UserSchema = dbModels['onDemandDB'].user;
-
         return new Promise(function (resolve, reject) {
             UserSchema.destroy({ where: { uid: uid } })
                 .then(data => {
