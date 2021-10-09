@@ -1,4 +1,5 @@
 const dbModels = require('../../models');
+const Op = dbModels['onDemandDB'].Sequelize.Op;
 const UserSchema = dbModels['onDemandDB'].user;
 let excludeColumns = ['lastActiveAt', 'statusMessage', 'credits', 'createdBy', 'updatedBy', 'deletedBy', 'updatedAt', 'deletedAt'];
 
@@ -11,6 +12,18 @@ let UserService = {
                     resolve(data);
                 }).catch(err => {
                     reject(err);
+                });
+        });
+    },
+
+    bulkFind: async (users = []) => {
+        return new Promise(function (resolve, reject) {
+            UserSchema.findAll({ where: { uid: { [Op.in]: [users] } }, attributes: { exclude: excludeColumns }, raw: true })
+                .then(data => {
+                    resolve(data);
+                }).catch(err => {
+                    console.log('error', err)
+                    // reject(err);
                 });
         });
     },
