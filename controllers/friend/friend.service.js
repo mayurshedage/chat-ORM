@@ -27,20 +27,9 @@ let GroupUserService = {
         });
     },
 
-    update: async (uid, fuid, body) => {
+    delete: async (uid, fuids) => {
         return new Promise(function (resolve, reject) {
-            FriendModel.update(body, { where: { uid: uid, fuid: fuid } })
-                .then(data => {
-                    resolve(data);
-                }).catch(err => {
-                    reject(err);
-                });
-        });
-    },
-
-    delete: async (uid) => {
-        return new Promise(function (resolve, reject) {
-            FriendModel.destroy({ where: { uid: uid } })
+            FriendModel.destroy({ where: { uid: uid, fuid: fuids } })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {

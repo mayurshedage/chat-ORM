@@ -65,7 +65,13 @@ module.exports = (app) => {
             validator.showError,
             FriendController.create
         )
-        .delete(FriendController.delete)
+        .delete(
+            [
+                body('friends').not().isEmpty()
+            ],
+            validator.showError,
+            FriendController.delete
+        )
 
     router.param('uid', AuthTokenController.checkUserExists);
 

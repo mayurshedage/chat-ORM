@@ -36,29 +36,16 @@ let FriendController = {
 
     delete: async (req, res) => {
         let req_uid = req.params.uid;
-        let req_guid = req.params.guid;
+        let fuids = req.body['friends'];
 
         try {
-            let result = await FriendService.delete(req_guid, req_uid);
-            if (result) {
-                Helper.sendResponse({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_GROUP_USER_KICKED',
-                });
-                let groups = await FriendService.findAll(req_guid);
-                await GroupService.update(req_guid, { membersCount: groups.length });
-            } else {
-                Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_USER_NOT_FOUND',
-                });
-            }
+            let result = await FriendService.delete(req_uid, fuids);
+            if (result) return res.json({
+                data: {
+                    "success": false,
+                    "message": `Deleted the friend relations successfully.`
+                }
+            });
         } catch (error) {
             Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
