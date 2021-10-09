@@ -15,7 +15,7 @@ let FriendController = {
 
             let filterRows = [];
             friends.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(row));
+                filterRows.push(Helper.removeEmptyValues(JSON.parse(JSON.stringify(row.user))));
             });
             res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
         } catch (error) {

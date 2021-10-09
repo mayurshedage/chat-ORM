@@ -1,13 +1,25 @@
 const dbModels = require('../../models');
+const Op = dbModels['onDemandDB'].Sequelize.Op;
+const UserModel = dbModels['onDemandDB'].user;
 const FriendModel = dbModels['onDemandDB'].friend;
+
+let excludeColumns = ['uid', 'fuid', 'status', 'createdAt', 'updatedAt'];
+let excludeColumnsUser = ['lastActiveAt', 'statusMessage', 'credits', 'createdBy', 'updatedBy', 'deletedBy', 'updatedAt', 'deletedAt'];
 
 let GroupUserService = {
 
     findAll: async (uid, whereAddOn = {}) => {
-        const whereClause = { uid: uid };
+        const whereClauseUser = { [Op.or]: [{ fuid: uid }, { uid: uid }] };
 
         return new Promise(function (resolve, reject) {
-            FriendModel.findAll({ where: { ...whereClause, ...whereAddOn }, attributes: { exclude: excludeColumns }, raw: true })
+            FriendModel.findAll({
+                where: whereClauseUser,
+                include: {
+                    model: UserModel,
+                    attributes: { exclude: excludeColumnsUser }
+                },
+                attributes: { exclude: excludeColumns }
+            })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
