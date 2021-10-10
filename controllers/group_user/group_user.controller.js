@@ -143,14 +143,21 @@ let GroupUserController = {
         }
     },
 
-    ban: async (req, res) => {
+    banUnban: async (key, req, res) => {
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
 
-        if (await groupUserValidator(req_guid, req_uid, req, res)) return;
+        let code = 'MSG_GROUP_USER_UNBANNED';
+        let whereClause = { isBanned: 0 };
+
+        if (key === 'ban') {
+            code = 'MSG_GROUP_USER_BANNED'; whereClause = { isBanned: 1 };
+        }
+
+        if (await groupUserValidator(req_guid, req_uid, req, res)) return false;
 
         try {
-            let result = await GroupUserService.update(req_guid, req_uid, { isBanned: 1 });
+            let result = await GroupUserService.update(req_guid, req_uid, whereClause);
             if (result) {
                 Helper.sendResponse({
                     key: 'GROUP_USER',
@@ -158,36 +165,6 @@ let GroupUserController = {
                     responder: res,
                     statusCode: 200,
                     code: 'MSG_GROUP_USER_BANNED',
-                });
-            } else {
-                Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_USER_NOT_FOUND',
-                });
-            }
-        } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
-        }
-    },
-
-    unban: async (req, res) => {
-        let req_uid = req.params.uid;
-        let req_guid = req.params.guid;
-
-        if (await groupUserValidator(req_guid, req_uid, req, res)) return;
-
-        try {
-            let result = await GroupUserService.update(req_guid, req_uid, { isBanned: 0 });
-            if (result) {
-                Helper.sendResponse({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_GROUP_USER_UNBANNED',
                 });
             } else {
                 Helper.sendError({

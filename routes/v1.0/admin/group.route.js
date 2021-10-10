@@ -76,8 +76,12 @@ module.exports = (app) => {
 
     router
         .route('/:guid/bannedusers/:uid')
-        .post(GroupUserController.ban)
-        .delete(GroupUserController.unban)
+        .post((req, res) => {
+            GroupUserController.banUnban('ban', req, res)
+        })
+        .delete((req, res) => {
+            GroupUserController.banUnban('unban', req, res)
+        })
 
     router.param('guid', GroupUserController.checkGroupExists);
 
