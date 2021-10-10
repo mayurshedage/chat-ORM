@@ -5,6 +5,7 @@ const UserController = require('../../../controllers/user/user.controller');
 const FriendController = require('../../../controllers/friend/friend.controller');
 const APIKeyController = require('../../../controllers/apikey/apikey.controller');
 const AuthTokenController = require('../../../controllers/auth_token/auth_token.controller');
+const BlockedUserController = require('../../../controllers/blocked_user/blocked_user.controller');
 
 const router = express.Router();
 
@@ -71,6 +72,24 @@ module.exports = (app) => {
             ],
             validator.showError,
             FriendController.delete
+        )
+
+    router
+        .route('/:uid/blockedusers')
+        .get(BlockedUserController.findAll)
+        .post(
+            [
+                body('blockedUids').not().isEmpty()
+            ],
+            validator.showError,
+            BlockedUserController.block
+        )
+        .delete(
+            [
+                body('blockedUids').not().isEmpty()
+            ],
+            validator.showError,
+            BlockedUserController.unblock
         )
 
     router.param('uid', AuthTokenController.checkUserExists);
