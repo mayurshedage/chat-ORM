@@ -1,4 +1,4 @@
-exports.Messages = (params) => {
+exports.get = (params) => {
     return {
         APP: {
             'ER_APP_NOT_FOUND': `APP_ID ${params} is invalid.`,

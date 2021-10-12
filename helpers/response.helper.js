@@ -1,52 +1,50 @@
-const responseMessages = require('../constants/response.c');
+const AppMessage = require('../constants/response.c');
 
 exports.sendResponse = (params = {}) => {
-    let key = params['key'];
+    let msgType = params['key'];
     let code = params['code'];
-    let input = params['input'] || '';
-    let responder = params['responder'];
+    let param = params['input'] || '';
     let statusCode = params['statusCode'] || 200;
+    let AppResponse = params['responder'];
 
-    let message = responseMessages.Messages(input)[key][code];
-
-    responder.status(statusCode).json({
+    AppResponse.status(statusCode).json({
         data: {
             success: true,
-            message: message
+            message: AppMessage.get(param)[msgType][code]
         }
     });
 };
 
-exports.sendError = (params = {}, debug = false) => {
-    let errorObj = {};
+exports.sendError = (errorBody = {}, debug = false) => {
+    let errorContainer = {};
     const errors = [ReferenceError, SyntaxError, TypeError];
 
-    let key = params['key'] || 'GLOBAL';
-    let code = params['code'] || 'INTERNAL_SERVER_ERROR';
-    let input = params['input'] || '';
-    let trace = params['trace'];
-    let responder = params['responder'];
-    let statusCode = params['statusCode'] || 500;
+    let msgType = errorBody['key'] || 'GLOBAL';
+    let code = errorBody['code'] || 'INTERNAL_SERVER_ERROR';
+    let param = errorBody['input'] || '';
+    let trace = errorBody['trace'];
+    let AppResponse = errorBody['responder'];
+    let statusCode = errorBody['statusCode'] || 500;
 
-    let message = responseMessages.Messages(input)[key][code];
+    let ErrorMessage = AppMessage.get(param)[msgType][code];
 
     errors.forEach(e => {
         if (trace instanceof e) {
             code = trace.name;
-            message = message;
+            message = trace.message;
             trace = trace.stack;
         }
     });
 
-    errorObj = {
+    errorContainer = {
         error: {
             code: code,
-            message: message
+            message: ErrorMessage
         }
     }
-    if (debug) errorObj['error']['trace'] = trace;
+    if (debug) errorContainer['error']['trace'] = trace;
 
-    return responder.status(statusCode).json(errorObj);
+    return AppResponse.status(statusCode).json(errorContainer);
 };
 
 exports.removeEmptyValues = (obj) => {
