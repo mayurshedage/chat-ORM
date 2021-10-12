@@ -6,6 +6,12 @@ const Helper = require('../../helpers/response.helper');
 let UserController = {
 
     findAll: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+
         try {
             let users = await UserService.findAll();
             if (users.length == 0) return res.status(200).json({ data: users });
@@ -14,32 +20,53 @@ let UserController = {
             users.forEach(row => {
                 filterRows.push(Helper.removeEmptyValues(row));
             });
-            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
+
+            response['data'] = Helper.removeEmptyValues(filterRows);
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     findOne: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
         try {
             let user = await UserService.findOne(uid);
-            if (user) return res.status(200).json({ data: Helper.removeEmptyValues(user) });
 
-            Helper.sendError({
-                key: 'USER',
-                input: uid,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_USER_NOT_FOUND',
-            });
+            if (user) {
+                response['data'] = Helper.removeEmptyValues(user);
+            } else {
+                response['error'] = {
+                    code: 'ERR_UID_NOT_FOUND',
+                    params: {
+                        uid: uid
+                    }
+                }
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     create: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let userToCreate = req.body;
 
         userToCreate.createdAt = Math.floor(+new Date() / 1000);
@@ -47,22 +74,31 @@ let UserController = {
         try {
             let user = await UserService.create(userToCreate);
 
-            if (user) return res.status(201).json({ data: Helper.removeEmptyValues(user) });
+            if (user) response['data'] = Helper.removeEmptyValues(user);
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
-                return Helper.sendError({
-                    key: 'USER',
-                    input: userToCreate.uid,
-                    responder: res,
-                    statusCode: 409,
-                    code: 'ER_DUP_ENTRY',
-                });
+                response['error'] = {
+                    code: 'ERR_UID_ALREADY_EXISTS',
+                    params: {
+                        uid: userToCreate['uid']
+                    }
+                }
+            } else {
+                response['error'] = {
+                    code: errorCode,
+                    trace: error
+                }
             }
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
+        Helper.send(response);
     },
 
     update: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
         let userToUpdate = req.body;
 
@@ -72,64 +108,88 @@ let UserController = {
             let result = await UserService.update(uid, userToUpdate);
             if (result) {
                 let user = await UserService.findOne(uid);
-                res.status(200).json({ data: Helper.removeEmptyValues(user) });
+
+                response['data'] = Helper.removeEmptyValues(user);
             } else {
-                Helper.sendError({
-                    key: 'USER',
-                    input: uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_USER_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'ERR_UID_NOT_FOUND',
+                    params: {
+                        uid: uid
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     delete: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
         try {
             let result = await UserService.delete(uid);
+
             if (result) {
-                Helper.sendResponse({
-                    key: 'USER',
-                    input: uid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_USER_DELETED',
-                });
+                response['data'] = {
+                    code: 'OK_DELETED_USER',
+                    params: {
+                        uid: uid
+                    }
+                };
             } else {
-                Helper.sendError({
-                    key: 'USER',
-                    input: uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_USER_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'ERR_UID_NOT_FOUND',
+                    params: {
+                        uid: uid
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     checkUserExists: async (req, res, next) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
         try {
             let user = await UserService.findOne(uid);
-            if (!user) return Helper.sendError({
-                key: 'USER',
-                input: uid,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_USER_NOT_FOUND',
-            });
-            next();
+
+            if (user) {
+                next(); return;
+            } else {
+                response['error'] = {
+                    code: 'ERR_UID_NOT_FOUND',
+                    params: {
+                        uid: uid
+                    }
+                }
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     }
 };
 
