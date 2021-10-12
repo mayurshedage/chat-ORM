@@ -2,7 +2,6 @@
 
 const crypto = require('crypto');
 const Helper = require('../../helpers/response.helper');
-const UserService = require('../user/user.service');
 const AuthTokenService = require('./auth_token.service');
 
 let AuthTokenController = {
@@ -122,24 +121,6 @@ let AuthTokenController = {
                 responder: res,
                 statusCode: 404,
                 code: 'ER_TOKEN_NOT_FOUND',
-            });
-            next();
-        } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
-        }
-    },
-
-    checkUserExists: async (req, res, next) => {
-        let uid = req.params.uid;
-
-        try {
-            let user = await UserService.findOne(uid);
-            if (!user) return Helper.sendError({
-                key: 'USER',
-                input: uid,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_USER_NOT_FOUND',
             });
             next();
         } catch (error) {

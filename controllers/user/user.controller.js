@@ -112,6 +112,24 @@ let UserController = {
         } catch (error) {
             Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
+    },
+
+    checkUserExists: async (req, res, next) => {
+        let uid = req.params.uid;
+
+        try {
+            let user = await UserService.findOne(uid);
+            if (!user) return Helper.sendError({
+                key: 'USER',
+                input: uid,
+                responder: res,
+                statusCode: 404,
+                code: 'ER_USER_NOT_FOUND',
+            });
+            next();
+        } catch (error) {
+            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+        }
     }
 };
 
