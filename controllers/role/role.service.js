@@ -39,7 +39,7 @@ let RoleService = {
 
     update: async (role, body) => {
         return new Promise(function (resolve, reject) {
-            RoleModel.update(body, { where: { role: role } })
+            RoleModel.update(body, { where: { role: role }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -50,7 +50,7 @@ let RoleService = {
 
     delete: async (role) => {
         return new Promise(function (resolve, reject) {
-            RoleModel.destroy({ where: { role: role } })
+            RoleModel.destroy({ where: { role: role }, raw: true })
                 .then(data => {
                     resolve(data);
                 }).catch(err => {

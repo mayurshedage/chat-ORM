@@ -109,7 +109,8 @@ let UserController = {
 
         try {
             let result = await UserService.update(uid, userToUpdate);
-            if (result) {
+
+            if (result && result[0] == 1) {
                 let user = await UserService.findOne(uid);
 
                 response['data'] = Helper.removeEmptyValues(user);

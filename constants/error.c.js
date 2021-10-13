@@ -1,4 +1,3 @@
-const { response } = require('express');
 const HttpResponse = require('./httpcode.c');
 
 exports.get = (error) => {
@@ -19,7 +18,15 @@ exports.get = (error) => {
             'ERR_CANNOT_FORM_SELF_RELATION': {
                 message: `Self friend relationship cannot be formed.`,
                 responseCode: HttpResponse.HTTP_FORBIDDEN
-            }
+            },
+            'ERR_ROLE_NOT_FOUND': {
+                message: `The role ${params['role']} does not exist. Please use correct role or use create role API.`,
+                responseCode: HttpResponse.HTTP_NOT_FOUND
+            },
+            'ERR_ROLE_ALREADY_EXISTS': {
+                message: `The role ${params['role']} already exists. Please use another role or try after permanently deleting the role.`,
+                responseCode: HttpResponse.HTTP_BAD_REQUEST
+            },
         }
     }
     if (error.hasOwnProperty('code')) {
