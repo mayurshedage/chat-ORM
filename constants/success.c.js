@@ -25,6 +25,18 @@ exports.get = (success) => {
             'OK_DELETED_AUTH_TOKEN': {
                 message: `The Auth Token ${params['auth_token']} has been deleted successfully.`
             },
+            'OK_UNBLOCKED': {
+                message: `The user with UID ${params['uid']} has unblocked user with UID ${params['blockedUid']} successfully.`
+            },
+            'OK_BLOCKED': {
+                message: `The user with UID ${params['uid']} has blocked user with UID ${params['blockedUid']} successfully.`
+            },
+            'OK_ALREADY_BLOCKED': {
+                message: `The user with UID ${params['uid']} has already blocked user with UID ${params['blockedUid']}.`
+            },
+            'OK_ALREADY_UNBLOCKED': {
+                message: `The user with UID ${params['uid']} has not blocked the user with UID ${params['blockedUid']}.`
+            },
         }
     }
     if (success.hasOwnProperty('code')) {

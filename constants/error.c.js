@@ -41,6 +41,10 @@ exports.get = (error) => {
                 'Please make sure you are logged in and have a valid auth token or try login again.`,
                 responseCode: HttpResponse.HTTP_UNAUTHORIZED
             },
+            'ERR_CANNOT_BLOCK_SELF': {
+                message: `The UID ${params['uid']} cannot block UID ${params['blockedUid']}.`,
+                responseCode: HttpResponse.HTTP_UNAUTHORIZED
+            },
         }
     }
     if (error.hasOwnProperty('code')) {

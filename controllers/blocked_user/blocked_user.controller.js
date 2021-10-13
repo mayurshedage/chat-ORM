@@ -7,34 +7,68 @@ const Helper = require('../../helpers/response.helper');
 let BlockedUserController = {
 
     findAll: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
 
         try {
             let blocked_users = await BlockedUserService.findAll(req_uid);
-            if (blocked_users.length == 0) return res.status(200).json({ data: blocked_users });
 
-            let filterRows = [];
-            blocked_users.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(JSON.parse(JSON.stringify(row.user))));
-            });
-            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
+            if (blocked_users.length == 0) {
+                response['data'] = blocked_users;
+            } else {
+                let filteredBlockUsers = [];
+
+                blocked_users.forEach(row => {
+                    filteredBlockUsers.push(
+                        Helper.removeEmptyValues(
+                            JSON.parse(JSON.stringify(row.user))
+                        )
+                    );
+                });
+                response['data'] = filteredBlockUsers;
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     block: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+
         try {
             const data = await blockedUserManager(req.body['blockedUids'], req);
-            res.json({ data: data });
+
+            response['data'] = data;
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     unblock: async (req, res) => {
-        let response = {};
-        let usersToUnblock = [];
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+
+        let responseData = {};
+        let validUsers = [];
         let req_uid = req.params.uid;
         let blockedUids = req.body['blockedUids'];
 
@@ -45,29 +79,49 @@ let BlockedUserController = {
                 },
                 raw: true
             });
-            (async () => {
-                for (let i = 0; i < blockedUids.length; i++) {
-                    let uid = blockedUids[i];
+            response['data'] = await (async () => {
+                for (let i = 0; i < blocked_users.length; i++) {
+                    validUsers.push(blocked_users[i]['blockedUid']);
+                }
+                let usersToUnblock = blockedUids.filter(x => validUsers.includes(x));
+                let notFountUsers = blockedUids.filter(x => !usersToUnblock.includes(x));
 
-                    if (blocked_users[i] && blocked_users[i].hasOwnProperty('blockedUid')) {
-                        // unblock
-                        response[blocked_users[i]['blockedUid']] = {
-                            "success": true,
-                            "message": `The user with UID ${req_uid} has unblocked user with UID ${blocked_users[i]['blockedUid']} successfully.`
-                        }
-                        usersToUnblock.push(blocked_users[i]['blockedUid']);
-                    } else {
-                        response[uid] = {
-                            "success": true,
-                            "message": `The user with UID ${req_uid} has not blocked the user with UID ${uid}.`
-                        }
+                for (let index = 0; index < usersToUnblock.length; index++) {
+                    let blockedUid = usersToUnblock[index];
+                    responseData[blockedUid] = {
+                        "success": true,
+                        "message": Helper.getSuccessMessage({
+                            code: 'OK_UNBLOCKED',
+                            params: {
+                                req_uid: req_uid,
+                                blockedUid: blockedUid
+                            }
+                        })['message']
+                    }
+
+                }
+                for (let index = 0; index < notFountUsers.length; index++) {
+                    let blockedUid = notFountUsers[index];
+                    responseData[blockedUid] = {
+                        "success": true,
+                        "message": Helper.getSuccessMessage({
+                            code: 'OK_ALREADY_UNBLOCKED',
+                            params: {
+                                req_uid: req_uid,
+                                blockedUid: blockedUid
+                            }
+                        })['message']
                     }
                 }
                 await BlockedUserService.delete(req_uid, usersToUnblock);
-            })().then(_ => res.json({ data: response }));
+            })().then(_ => { return responseData });
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     }
 };
 
@@ -76,36 +130,61 @@ const blockedUserManager = async (blockedUids, req) => {
     let users = await UserService.bulkFind(blockedUids);
 
     return (async () => {
+        let req_uid = req.params.uid;
+
         for (let i = 0; i < blockedUids.length; i++) {
-            let uid = blockedUids[i];
+            let blockedUid = blockedUids[i];
 
             if (users[i] && users[i].hasOwnProperty('uid')) {
-                if (uid == req.params.uid) {
-                    response[uid] = {
+                if (blockedUid == req_uid) {
+                    response[blockedUid] = {
                         "success": false,
-                        "message": `The UID ${req.params.uid} cannot block UID ${uid}.`
+                        "message": Helper.getErrorMessage({
+                            code: 'ERR_CANNOT_BLOCK_SELF',
+                            params: {
+                                uid: req_uid,
+                                blockedUid: blockedUid
+                            }
+                        })['message']
                     }
                 } else {
                     try {
-                        await BlockedUserService.create({ uid: req.params.uid, blockedUid: uid, blockedAt: Math.floor(+new Date() / 1000) });
+                        await BlockedUserService.create({ uid: req.params.uid, blockedUid: blockedUid, blockedAt: Math.floor(+new Date() / 1000) });
 
-                        response[uid] = {
+                        response[blockedUid] = {
                             "success": true,
-                            "message": `The user with UID ${req.params.uid} has blocked user with UID ${uid} successfully.`
+                            "message": Helper.getSuccessMessage({
+                                code: 'OK_BLOCKED',
+                                params: {
+                                    uid: req_uid,
+                                    blockedUid: blockedUid
+                                }
+                            })['message']
                         }
                     } catch (error) {
                         if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
-                            response[uid] = {
+                            response[blockedUid] = {
                                 "success": true,
-                                "message": `The user with UID ${req.params.uid} has already blocked user with UID ${uid}.`
+                                "message": Helper.getSuccessMessage({
+                                    code: 'OK_ALREADY_BLOCKED',
+                                    params: {
+                                        uid: req_uid,
+                                        blockedUid: blockedUid
+                                    }
+                                })['message']
                             }
                         }
                     }
                 }
             } else {
-                response[uid] = {
+                response[blockedUid] = {
                     "success": false,
-                    "message": `The uid ${uid} does not exist, please make sure you have created a uid with uid ${uid}.`
+                    "message": Helper.getErrorMessage({
+                        code: 'ERR_UID_NOT_FOUND',
+                        params: {
+                            uid: blockedUid
+                        }
+                    })['message']
                 }
             }
         }
