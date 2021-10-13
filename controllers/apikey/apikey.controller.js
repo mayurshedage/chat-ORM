@@ -7,55 +7,95 @@ const Helper = require('../../helpers/response.helper');
 let APIKeyController = {
 
     findAll: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+
         try {
             let apikeys = await APIKeyService.findAll();
-            if (apikeys.length == 0) return res.status(200).json({ data: apikeys });
 
-            let filterRows = [];
-            apikeys.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(row));
-            });
-            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
+            if (apikeys.length == 0) {
+                response['data'] = apikeys;
+            } else {
+                let filteredKeys = [];
+
+                apikeys.forEach(row => {
+                    filteredKeys.push(Helper.removeEmptyValues(row));
+                });
+                response['data'] = filteredKeys;
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     findOne: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.params.apiKey;
 
         try {
             let apikey = await APIKeyService.findOne(req_apikey);
-            if (apikey) return res.status(200).json({ data: Helper.removeEmptyValues(apikey) });
 
-            Helper.sendError({
-                key: 'API_KEY',
-                input: req_apikey,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_API_KEY_NOT_FOUND',
-            });
+            if (apikey) {
+                response['data'] = Helper.removeEmptyValues(apikey);
+            } else {
+                response['error'] = {
+                    code: 'AUTH_ERR_APIKEY_NOT_FOUND',
+                    params: {
+                        apikey: req_apikey
+                    }
+                }
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     create: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let keyToCreate = req.body;
 
         keyToCreate.apiKey = crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
+        keyToCreate.createdBy = req['requestOwner'];
         keyToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
             let apikey = await APIKeyService.create(keyToCreate);
 
-            if (apikey) return res.status(201).json({ data: Helper.removeEmptyValues(apikey) });
+            if (apikey) response['data'] = Helper.removeEmptyValues(apikey);
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     update: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.params.apiKey;
         let keyToUpdate = req.body;
 
@@ -64,77 +104,99 @@ let APIKeyController = {
         try {
             let result = await APIKeyService.update(req_apikey, keyToUpdate);
 
-            if (result) {
+            if (result && result[0] == 1) {
                 let apikey = await APIKeyService.findOne(req_apikey);
-                res.status(200).json({ data: Helper.removeEmptyValues(apikey) });
+
+                response['data'] = Helper.removeEmptyValues(apikey);
             } else {
-                Helper.sendError({
-                    key: 'API_KEY',
-                    input: req_apikey,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_API_KEY_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'AUTH_ERR_APIKEY_NOT_FOUND',
+                    params: {
+                        apikey: req_apikey
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     delete: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.params.apiKey;
 
         try {
-            let result = await APIKeyService.delete(req_apikey);
+            let result = await RoleService.delete(req_apikey);
+
             if (result) {
-                Helper.sendResponse({
-                    key: 'API_KEY',
-                    input: req_apikey,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_API_KEY_DELETED',
-                });
+                response['data'] = {
+                    code: 'OK_API_KEY_DELETED',
+                    params: {
+                        apikey: req_apikey
+                    }
+                };
             } else {
-                Helper.sendError({
-                    key: 'API_KEY',
-                    input: req_apikey,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_API_KEY_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'AUTH_ERR_APIKEY_NOT_FOUND',
+                    params: {
+                        apikey: req_apikey
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     validate: async (req, res, next) => {
-        let apiKey = req.headers.apikey;
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+        let req_apikey = req.headers.apikey;
 
         try {
-            let apikey = await APIKeyService.findOne(apiKey);
-            if (!apikey) return Helper.sendError({
-                key: 'API_KEY',
-                input: apiKey,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_API_KEY_NOT_FOUND',
-            });
+            let apikey = await APIKeyService.findOne(req_apikey);
 
-            if (apikey.hasOwnProperty('scope') && apikey['scope'] === 'fullAccess') {
-                next();
+            if (!apikey) {
+                response['error'] = {
+                    code: 'AUTH_ERR_APIKEY_NOT_FOUND',
+                    params: {
+                        apikey: req_apikey
+                    }
+                }
             } else {
-                Helper.sendError({
-                    key: 'API_KEY',
-                    input: apiKey,
-                    responder: res,
-                    statusCode: 403,
-                    code: 'ER_AUTH_NO_ACCESS',
-                });
+                if (apikey.hasOwnProperty('scope') && apikey['scope'] === 'fullAccess') {
+                    next(); return;
+                } else {
+                    response['error'] = {
+                        code: 'AUTH_ERR_NO_ACCESS',
+                        params: {
+                            apikey: req_apikey
+                        }
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     }
 };
 

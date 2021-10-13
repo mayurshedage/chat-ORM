@@ -14,6 +14,7 @@ let RoleController = {
 
         try {
             let roles = await RoleService.findAll();
+
             if (roles.length == 0) {
                 response['data'] = roles;
             } else {

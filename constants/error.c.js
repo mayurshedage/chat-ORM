@@ -27,6 +27,15 @@ exports.get = (error) => {
                 message: `The role ${params['role']} already exists. Please use another role or try after permanently deleting the role.`,
                 responseCode: HttpResponse.HTTP_BAD_REQUEST
             },
+            'AUTH_ERR_APIKEY_NOT_FOUND': {
+                message: `The key ${params['apikey']} does not exist. Please use correct apiKey.`,
+                responseCode: HttpResponse.HTTP_NOT_FOUND
+            },
+            'AUTH_ERR_NO_ACCESS': {
+                message: `The key ${params['apikey']} cannot be used to perform this operation. ' .
+                'Please use API key with a correct scope to perform the operation.`,
+                responseCode: HttpResponse.HTTP_FORBIDDEN
+            },
         }
     }
     if (error.hasOwnProperty('code')) {
