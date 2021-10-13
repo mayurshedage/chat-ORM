@@ -36,6 +36,11 @@ exports.get = (error) => {
                 'Please use API key with a correct scope to perform the operation.`,
                 responseCode: HttpResponse.HTTP_FORBIDDEN
             },
+            'AUTH_ERR_AUTH_TOKEN_NOT_FOUND': {
+                message: `The auth token ${params['auth_token']} does not exist. ' .
+                'Please make sure you are logged in and have a valid auth token or try login again.`,
+                responseCode: HttpResponse.HTTP_UNAUTHORIZED
+            },
         }
     }
     if (error.hasOwnProperty('code')) {

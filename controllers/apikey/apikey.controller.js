@@ -134,7 +134,7 @@ let APIKeyController = {
         let req_apikey = req.params.apiKey;
 
         try {
-            let result = await RoleService.delete(req_apikey);
+            let result = await APIKeyService.delete(req_apikey);
 
             if (result) {
                 response['data'] = {

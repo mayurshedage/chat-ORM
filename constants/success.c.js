@@ -22,6 +22,9 @@ exports.get = (success) => {
             'OK_API_KEY_DELETED': {
                 message: `The Api Key ${params['apikey']} has been deleted successfully.`
             },
+            'OK_DELETED_AUTH_TOKEN': {
+                message: `The Auth Token ${params['auth_token']} has been deleted successfully.`
+            },
         }
     }
     if (success.hasOwnProperty('code')) {
