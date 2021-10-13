@@ -7,23 +7,44 @@ const Helper = require('../../helpers/response.helper');
 let FriendController = {
 
     findAll: async (req, res, whereClause = {}) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
 
         try {
             let friends = await FriendService.findAll(req_uid, whereClause);
-            if (friends.length == 0) return res.status(200).json({ data: friends });
 
-            let filterRows = [];
-            friends.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(JSON.parse(JSON.stringify(row.user))));
-            });
-            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
+            if (friends.length == 0) {
+                response['data'] = friends;
+            } else {
+                let filteredFriends = [];
+
+                friends.forEach(row => {
+                    filteredFriends.push(
+                        Helper.removeEmptyValues(
+                            JSON.parse(JSON.stringify(row.user))
+                        )
+                    );
+                });
+                response['data'] = filteredFriends;
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     create: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
         let friendsObj = {};
 
         (async () => {
@@ -31,29 +52,40 @@ let FriendController = {
                 let status = Object.keys(req.body)[i];
                 friendsObj[status] = await friendsManager(req.body[status], status, req, res);
             };
-        })().then(_ => res.json({ data: friendsObj }))
+        })().then(_ => {
+            response['data'] = friendsObj;
+            Helper.send(response);
+        })
     },
 
     delete: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let fuids = req.body['friends'];
 
         try {
             let result = await FriendService.delete(req_uid, fuids);
-            if (result) return res.json({
-                data: {
-                    "success": false,
-                    "message": `Deleted the friend relations successfully.`
-                }
-            });
+
+            response['data'] = {
+                code: 'OK_DELETED_FRIEND_RELATIONS'
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     }
 };
 
-const friendsManager = async (friendsToAdd, status, req, res) => {
-    let response = {};
+const friendsManager = async (friendsToAdd, status, req) => {
+    let response = new Object();
+
     let users = await UserService.bulkFind(friendsToAdd);
 
     return (async () => {
@@ -64,7 +96,9 @@ const friendsManager = async (friendsToAdd, status, req, res) => {
                 if (uid == req.params.uid) {
                     response[uid] = {
                         "success": false,
-                        "message": `Self friend relationship cannot be formed.`
+                        "message": Helper.getErrorMessage({
+                            code: 'ERR_CANNOT_FORM_SELF_RELATION'
+                        })['message']
                     }
                 } else {
                     try {
@@ -72,7 +106,12 @@ const friendsManager = async (friendsToAdd, status, req, res) => {
 
                         response[uid] = {
                             "success": true,
-                            "message": `Created relationship with status ${status}.`
+                            "message": Helper.getSuccessMessage({
+                                code: 'OK_CREATED_RELATIONSHIP_STATUS',
+                                params: {
+                                    status: status
+                                }
+                            })['message']
                         }
                     } catch (error) {
                         if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
@@ -83,7 +122,12 @@ const friendsManager = async (friendsToAdd, status, req, res) => {
 
                             response[uid] = {
                                 "success": true,
-                                "message": `Updated relationship with status ${status}.`
+                                "message": Helper.getSuccessMessage({
+                                    code: 'OK_UPDATED_RELATIONSHIP_STATUS',
+                                    params: {
+                                        status: status
+                                    }
+                                })['message']
                             }
                         }
                     }
@@ -91,7 +135,12 @@ const friendsManager = async (friendsToAdd, status, req, res) => {
             } else {
                 response[uid] = {
                     "success": false,
-                    "message": `The uid ${uid} does not exist, please make sure you have created a uid with uid ${uid}.`
+                    "message": Helper.getErrorMessage({
+                        code: 'ERR_UID_NOT_FOUND',
+                        params: {
+                            uid: uid
+                        }
+                    })['message']
                 }
             }
         }

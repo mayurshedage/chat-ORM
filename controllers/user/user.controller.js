@@ -14,14 +14,17 @@ let UserController = {
 
         try {
             let users = await UserService.findAll();
-            if (users.length == 0) return res.status(200).json({ data: users });
 
-            let filterRows = [];
-            users.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(row));
-            });
+            if (users.length == 0) {
+                response['data'] = users;
+            } else {
+                let filteredUsers = [];
 
-            response['data'] = Helper.removeEmptyValues(filterRows);
+                users.forEach(row => {
+                    filteredUsers.push(Helper.removeEmptyValues(row));
+                });
+                response['data'] = filteredUsers;
+            }
         } catch (error) {
             response['error'] = {
                 code: errorCode,

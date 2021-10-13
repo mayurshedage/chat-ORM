@@ -7,6 +7,15 @@ exports.get = (success) => {
             OK_DELETED_USER: {
                 message: `User ${params['uid']} has been deleted successfully.`
             },
+            OK_CREATED_RELATIONSHIP_STATUS: {
+                message: `Created relationship with status ${params['status']}.`
+            },
+            OK_UPDATED_RELATIONSHIP_STATUS: {
+                message: `Updated relationship with status ${params['status']}.`
+            },
+            OK_DELETED_FRIEND_RELATIONS: {
+                message: `Deleted the friend relations successfully.`
+            },
             OK_GROUP_DELETED: {
                 message: `Group ${params} has been deleted successfully.`
             },

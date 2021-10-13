@@ -15,6 +15,10 @@ exports.get = (error) => {
             'ERR_UID_ALREADY_EXISTS': {
                 message: `The uid ${params['uid']} already exists. Please use another uid or try after permanently deleting the user.`,
                 responseCode: HttpResponse.HTTP_BAD_REQUEST
+            },
+            'ERR_CANNOT_FORM_SELF_RELATION': {
+                message: `Self friend relationship cannot be formed.`,
+                responseCode: HttpResponse.HTTP_FORBIDDEN
             }
         }
     }
