@@ -37,6 +37,9 @@ exports.get = (success) => {
             'OK_ALREADY_UNBLOCKED': {
                 message: `The user with UID ${params['uid']} has not blocked the user with UID ${params['blockedUid']}.`
             },
+            'OK_DELETED_GROUP': {
+                message: `Group ${params['guid']} has been deleted successfully.`
+            },
         }
     }
     if (success.hasOwnProperty('code')) {

@@ -45,6 +45,14 @@ exports.get = (error) => {
                 message: `The UID ${params['uid']} cannot block UID ${params['blockedUid']}.`,
                 responseCode: HttpResponse.HTTP_UNAUTHORIZED
             },
+            'ERR_GUID_NOT_FOUND': {
+                message: `The group with guid ${params['guid']} not exists. Please use correct guid or use create group API.`,
+                responseCode: HttpResponse.HTTP_NOT_FOUND
+            },
+            'ERR_GUID_ALREADY_EXISTS': {
+                message: `The guid ${params['guid']} already exists. Please use another guid or try after permanently deleting the group.`,
+                responseCode: HttpResponse.HTTP_BAD_REQUEST
+            },
         }
     }
     if (error.hasOwnProperty('code')) {
