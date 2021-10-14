@@ -223,6 +223,36 @@ let GroupController = {
             }
         }
         Helper.send(response);
+    },
+
+    checkGroupExists: async (req, res, next) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+        let guid = req.params.guid;
+
+        try {
+            let group = await GroupService.findOne(guid);
+
+            if (group) {
+                next(); return;
+            } else {
+                response['error'] = {
+                    code: 'ERR_GUID_NOT_FOUND',
+                    params: {
+                        guid: guid
+                    }
+                }
+            }
+        } catch (error) {
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
+        }
+        Helper.send(response);
     }
 };
 

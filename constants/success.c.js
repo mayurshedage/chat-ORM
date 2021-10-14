@@ -40,6 +40,15 @@ exports.get = (success) => {
             'OK_DELETED_GROUP': {
                 message: `Group ${params['guid']} has been deleted successfully.`
             },
+            'OK_GROUP_LEFT': {
+                message: `The user with ${params['uid']} has left the group with guid ${params['guid']}.`
+            },
+            'OK_BANNED_USER_FROM_GROUP': {
+                message: `The user with uid ${params['uid']} has been banned from the Group with ${params['guid']}.`
+            },
+            'OK_UNBANNED_USER_FROM_GROUP': {
+                message: `The user with uid ${params['uid']} has been unbanned from the Group ${params['guid']}.`
+            },
         }
     }
     if (success.hasOwnProperty('code')) {

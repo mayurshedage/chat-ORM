@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, header } = require('express-validator');
 const validator = require('../../../middlewares/validator.mw');
+const UserController = require('../../../controllers/user/user.controller');
 const GroupController = require('../../../controllers/group/group.controller');
 const APIKeyController = require('../../../controllers/apikey/apikey.controller');
 const GroupUserController = require('../../../controllers/group_user/group_user.controller');
@@ -83,7 +84,8 @@ module.exports = (app) => {
             GroupUserController.banUnban('unban', req, res)
         })
 
-    router.param('guid', GroupUserController.checkGroupExists);
+    router.param('guid', GroupController.checkGroupExists);
+    router.param('uid', UserController.checkUserExists);
 
     app.use('/v1.0/groups',
         header('apiKey').not().isEmpty(),

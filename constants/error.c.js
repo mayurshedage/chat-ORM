@@ -53,6 +53,14 @@ exports.get = (error) => {
                 message: `The guid ${params['guid']} already exists. Please use another guid or try after permanently deleting the group.`,
                 responseCode: HttpResponse.HTTP_BAD_REQUEST
             },
+            'ERR_NOT_A_MEMBER': {
+                message: `The user with uid ${params['uid']} is not a member of group with guid ${params['guid']}.`,
+                responseCode: HttpResponse.HTTP_NOT_FOUND
+            },
+            'ERR_ALREADY_JOINED': {
+                message: `The user with uid ${params['uid']}has already joined the group with guid ${params['guid']}.`,
+                responseCode: HttpResponse.HTTP_EXPECTATION_FAILED
+            },
         }
     }
     if (error.hasOwnProperty('code')) {
