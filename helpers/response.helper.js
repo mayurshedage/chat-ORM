@@ -2,21 +2,6 @@ const AppMessage = require('../constants/response.c');
 const Success = require('../constants/success.c');
 const Errors = require('../constants/error.c');
 
-exports.sendResponse = (params = {}) => {
-    let msgType = params['key'];
-    let code = params['code'];
-    let param = params['input'] || '';
-    let statusCode = params['statusCode'] || 200;
-    let AppResponse = params['responder'];
-
-    AppResponse.status(statusCode).json({
-        data: {
-            success: true,
-            message: AppMessage.get(param)[msgType][code]
-        }
-    });
-};
-
 exports.sendError = (errorBody = {}, debug = false) => {
     let errorContainer = {};
     const errors = [ReferenceError, SyntaxError, TypeError];
