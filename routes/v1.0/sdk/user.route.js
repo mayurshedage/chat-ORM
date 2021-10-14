@@ -97,7 +97,7 @@ module.exports = (app) => {
     app.use('/v1.0/users',
         header('apiKey').not().isEmpty(),
         validator.showError,
-        APIKeyController.validate,
+        AuthTokenController.validate,
         router
     );
 }

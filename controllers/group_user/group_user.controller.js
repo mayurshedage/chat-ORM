@@ -8,57 +8,76 @@ const Helper = require('../../helpers/response.helper');
 let GroupUserController = {
 
     findAll: async (req, res, whereClause = {}) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_guid = req.params.guid;
 
         try {
             let group_users = await GroupUserService.findAll(req_guid, whereClause);
-            if (group_users.length == 0) return res.status(200).json({ data: group_users });
 
-            let filterRows = [];
-            group_users.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(row));
-            });
-            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
+            if (group_users.length == 0) {
+                response['data'] = group_users;
+            } else {
+                let filteredGroupUsers = [];
+
+                group_users.forEach(row => {
+                    filteredGroupUsers.push(Helper.removeEmptyValues(row));
+                });
+                response['data'] = filteredGroupUsers;
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     findOne: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
 
         try {
             let group_user = await GroupUserService.findOne(req_guid, req_uid);
-            if (group_user) return res.status(200).json({ data: Helper.removeEmptyValues(group_user) });
 
-            Helper.sendError({
-                key: 'GROUP_USER',
-                input: req_uid,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_GROUP_USER_NOT_FOUND',
-            });
+            if (group_user) {
+                response['data'] = group_user;
+            } else {
+                response['error'] = {
+                    code: 'ERR_NOT_A_MEMBER',
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     create: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.body.uid;
         let req_guid = req.params.guid;
         let addUserToGroup = req.body;
-
-        if (req_uid) {
-            const user = await UserService.findOne(req_uid);
-            if (!user) return Helper.sendError({
-                key: 'USER',
-                input: req_uid,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_USER_NOT_FOUND',
-            });
-        }
 
         addUserToGroup.uid = req_uid;
         addUserToGroup.guid = req_guid;
@@ -68,180 +87,144 @@ let GroupUserController = {
             let group_user = await GroupUserService.create(addUserToGroup);
 
             if (group_user) {
-                res.status(201).json({ data: Helper.removeEmptyValues(group_user) });
+                response['data'] = Helper.removeEmptyValues(group_user);
 
                 let groups = await GroupUserService.findAll(req_guid);
-                return await GroupService.update(req_guid, { membersCount: groups.length });
+                await GroupService.update(req_guid, { membersCount: groups.length });
             }
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
-                return Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: addUserToGroup.uid,
-                    responder: res,
-                    statusCode: 409,
-                    code: 'ER_DUP_ENTRY',
-                });
+                response['error'] = {
+                    code: 'ERR_ALREADY_JOINED',
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
+            } else {
+                response['error'] = {
+                    code: errorCode,
+                    trace: error
+                }
             }
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
+        Helper.send(response);
     },
 
     update: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
         let groupUserToUpdate = req.body;
 
-        if (await groupUserValidator(req_guid, req_uid, req, res)) return;
-
         try {
             let result = await GroupUserService.update(req_guid, req_uid, groupUserToUpdate);
-            if (result) {
+
+            if (result && result[0] == 1) {
                 let group_user = await GroupUserService.findOne(req_guid, req_uid);
-                res.status(200).json({ data: Helper.removeEmptyValues(group_user) });
+
+                response['data'] = Helper.removeEmptyValues(group_user);
             } else {
-                Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_USER_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'ERR_NOT_A_MEMBER',
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     delete: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
 
         try {
             let result = await GroupUserService.delete(req_guid, req_uid);
+
             if (result) {
-                Helper.sendResponse({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_GROUP_USER_KICKED',
-                });
+                response['data'] = {
+                    code: 'OK_GROUP_LEFT',
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
                 let groups = await GroupUserService.findAll(req_guid);
                 await GroupService.update(req_guid, { membersCount: groups.length });
             } else {
-                Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_USER_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'ERR_NOT_A_MEMBER',
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
-    ban: async (req, res) => {
+    banUnban: async (key, req, res) => {
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
 
-        if (await groupUserValidator(req_guid, req_uid, req, res)) return;
+        let code = 'OK_UNBANNED_USER_FROM_GROUP';
+        let whereClause = { isBanned: 0 };
+
+        if (key === 'ban') {
+            code = 'OK_BANNED_USER_FROM_GROUP'; whereClause = { isBanned: 1 };
+        }
 
         try {
-            let result = await GroupUserService.update(req_guid, req_uid, { isBanned: 1 });
+            let result = await GroupUserService.update(req_guid, req_uid, whereClause);
+
             if (result) {
-                Helper.sendResponse({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_GROUP_USER_BANNED',
-                });
+                response['data'] = {
+                    code: code,
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
             } else {
-                Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_USER_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'ERR_NOT_A_MEMBER',
+                    params: {
+                        uid: req_uid,
+                        guid: req_guid
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
-        }
-    },
-
-    unban: async (req, res) => {
-        let req_uid = req.params.uid;
-        let req_guid = req.params.guid;
-
-        if (await groupUserValidator(req_guid, req_uid, req, res)) return;
-
-        try {
-            let result = await GroupUserService.update(req_guid, req_uid, { isBanned: 0 });
-            if (result) {
-                Helper.sendResponse({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_GROUP_USER_UNBANNED',
-                });
-            } else {
-                Helper.sendError({
-                    key: 'GROUP_USER',
-                    input: req_uid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_USER_NOT_FOUND',
-                });
+            response['error'] = {
+                code: errorCode,
+                trace: error
             }
-        } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
-    },
-
-    checkGroupExists: async (req, res, next) => {
-        let guid = req.params.guid;
-
-        try {
-            let group = await GroupService.findOne(guid);
-            if (!group) return Helper.sendError({
-                key: 'GROUP',
-                input: guid,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_GROUP_NOT_FOUND',
-            });
-            next();
-        } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
-        }
+        Helper.send(response);
     }
-};
-
-const groupUserValidator = async (guid, uid, req, res) => {
-    const user = await UserService.findOne(uid);
-    if (!user) return Helper.sendError({
-        key: 'USER',
-        input: uid,
-        responder: res,
-        statusCode: 404,
-        code: 'ER_USER_NOT_FOUND',
-    });
-
-    const group_user = await GroupUserService.findOne(guid, uid);
-    if (!group_user) return Helper.sendError({
-        key: 'GROUP_USER',
-        input: uid,
-        responder: res,
-        statusCode: 404,
-        code: 'ER_GROUP_USER_NOT_FOUND',
-    });
-
-    return false;
 };
 
 module.exports = GroupUserController;

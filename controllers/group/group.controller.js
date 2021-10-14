@@ -8,163 +8,251 @@ const Helper = require('../../helpers/response.helper');
 let GroupController = {
 
     findAll: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+
         try {
             let groups = await GroupService.findAll(req);
-            if (groups.length == 0) return res.status(200).json({ data: groups });
 
-            let filterRows = [];
-            groups.forEach(row => {
-                filterRows.push(Helper.removeEmptyValues(row));
-            });
-            res.status(200).json({ data: Helper.removeEmptyValues(filterRows) });
+            if (groups.length == 0) {
+                response['data'] = groups;
+            } else {
+                let filteredGroups = [];
+
+                groups.forEach(row => {
+                    filteredGroups.push(Helper.removeEmptyValues(row));
+                });
+                response['data'] = filteredGroups;
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     findOne: async (req, res) => {
-        let req_group = req.params.guid;
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+        let req_guid = req.params.guid;
 
         try {
             let group = await GroupService.findOne(req_group);
-            if (group) return res.status(200).json({ data: Helper.removeEmptyValues(group) });
 
-            Helper.sendError({
-                key: 'GROUP',
-                input: req_group,
-                responder: res,
-                statusCode: 404,
-                code: 'ER_GROUP_NOT_FOUND',
-            });
+            if (group) {
+                response['data'] = Helper.removeEmptyValues(group);
+            } else {
+                response['error'] = {
+                    code: 'ERR_GUID_NOT_FOUND',
+                    params: {
+                        guid: req_guid
+                    }
+                }
+            }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
     },
 
     create: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let tags = [];
+        let proceed = true;
         let groupToCreate = req.body;
 
         if (req.body['owner']) {
             const user = await UserService.findOne(req.body['owner']);
-            if (!user) return Helper.sendError({
-                key: 'USER',
-                input: req.body['owner'],
-                responder: res,
-                statusCode: 404,
-                code: 'ER_USER_NOT_FOUND',
-            });
+
+            if (!user) {
+                proceed = false;
+
+                response['error'] = {
+                    code: 'ERR_UID_NOT_FOUND',
+                    params: {
+                        uid: uid
+                    }
+                }
+            }
         }
-        groupToCreate.createdAt = Math.floor(+new Date() / 1000);
-        let addedAt = Math.floor(+new Date() / 1000);
 
-        try {
-            let group = await GroupService.create(groupToCreate);
+        if (proceed) {
+            groupToCreate.createdAt = Math.floor(+new Date() / 1000);
+            let addedAt = Math.floor(+new Date() / 1000);
 
-            if (group) res.status(201).json({ data: Helper.removeEmptyValues(group) });
+            try {
+                let group = await GroupService.create(groupToCreate);
 
-            if (req.body.tags && req.body.tags.length) {
-                if (typeof req.body.tags == 'string') {
-                    tags.push({ guid: group.guid, tag: req.body.tags, addedAt: addedAt })
-                } else if (typeof req.body.tags == 'object') {
+                if (group) {
+                    response['data'] = Helper.removeEmptyValues(group);
+                }
+                if (req.body.tags && req.body.tags.length) {
                     req.body.tags.map(tag => {
                         return tags.push({ guid: group.guid, tag: tag, addedAt: addedAt });
                     });
+                    if (tags.length) await GroupTagService.bulkCreate(tags);
                 }
-                if (tags.length) return await GroupTagService.bulkCreate(tags);
+            } catch (error) {
+                if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
+                    response['error'] = {
+                        code: 'ERR_GUID_ALREADY_EXISTS',
+                        params: {
+                            guid: groupToCreate['guid']
+                        }
+                    }
+                } else {
+                    response['error'] = {
+                        code: errorCode,
+                        trace: error
+                    }
+                }
             }
-            if (tags.length) await GroupTagService.bulkCreate({ tag: tags });
-        } catch (error) {
-            console.log(error);
-            if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
-                return Helper.sendError({
-                    key: 'GROUP',
-                    input: groupToCreate.guid,
-                    responder: res,
-                    statusCode: 409,
-                    code: 'ER_DUP_ENTRY',
-                });
-            }
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
+        Helper.send(response);
     },
 
     update: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let tags = [];
+        let proceed = true;
         let guid = req.params.guid;
         let groupToUpdate = req.body;
 
         if (req.body['owner']) {
             const user = await UserService.findOne(req.body['owner']);
-            if (!user) return Helper.sendError({
-                key: 'USER',
-                input: req.body['owner'],
-                responder: res,
-                statusCode: 404,
-                code: 'ER_USER_NOT_FOUND',
-            });
+
+            if (!user) {
+                proceed = false;
+
+                response['error'] = {
+                    code: 'ERR_UID_NOT_FOUND',
+                    params: {
+                        guid: guid
+                    }
+                }
+            }
         }
-        groupToUpdate.updatedAt = Math.floor(+new Date() / 1000);
-        let addedAt = Math.floor(+new Date() / 1000);
+        if (proceed) {
+            groupToUpdate.updatedAt = Math.floor(+new Date() / 1000);
+            let addedAt = Math.floor(+new Date() / 1000);
 
-        try {
-            let result = await GroupService.update(guid, groupToUpdate);
-            if (result) {
-                let group = await GroupService.findOne(guid);
-                res.status(200).json({ data: Helper.removeEmptyValues(group) });
+            try {
+                let result = await GroupService.update(guid, groupToUpdate);
 
-                if (req.body.tags && req.body.tags.length) {
-                    if (typeof req.body.tags == 'string') {
-                        tags.push({ guid: group.guid, tag: req.body.tags, addedAt: addedAt })
-                    } else if (typeof req.body.tags == 'object') {
+                if (result) {
+                    let group = await GroupService.findOne(guid);
+
+                    response['data'] = Helper.removeEmptyValues(group);
+
+                    if (req.body.tags && req.body.tags.length) {
                         req.body.tags.map(tag => {
                             return tags.push({ guid: group.guid, tag: tag, addedAt: addedAt });
                         });
+                        if (tags.length) {
+                            await GroupTagService.delete(guid);
+                            await GroupTagService.bulkCreate(tags);
+                        }
                     }
-                    if (tags.length) {
-                        await GroupTagService.delete(guid);
-                        await GroupTagService.bulkCreate(tags);
+                } else {
+                    response['error'] = {
+                        code: 'ERR_GUID_NOT_FOUND',
+                        params: {
+                            guid: req_guid
+                        }
                     }
                 }
-            } else {
-                Helper.sendError({
-                    key: 'GROUP',
-                    input: guid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_NOT_FOUND',
-                });
+            } catch (error) {
+                response['error'] = {
+                    code: errorCode,
+                    trace: error
+                }
             }
-        } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
         }
+        Helper.send(response);
     },
 
     delete: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let guid = req.params.guid;
 
         try {
             let result = await GroupService.delete(guid);
+
             if (result) {
-                Helper.sendResponse({
-                    key: 'GROUP',
-                    input: guid,
-                    responder: res,
-                    statusCode: 200,
-                    code: 'MSG_GROUP_DELETED',
-                });
+                response['data'] = {
+                    code: 'OK_DELETED_GROUP',
+                    params: {
+                        guid: guid
+                    }
+                };
             } else {
-                Helper.sendError({
-                    key: 'GROUP',
-                    input: guid,
-                    responder: res,
-                    statusCode: 404,
-                    code: 'ER_GROUP_NOT_FOUND',
-                });
+                response['error'] = {
+                    code: 'ERR_GUID_NOT_FOUND',
+                    params: {
+                        guid: guid
+                    }
+                }
             }
         } catch (error) {
-            Helper.sendError({ responder: res, trace: error }, req.query.debug);
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
         }
+        Helper.send(response);
+    },
+
+    checkGroupExists: async (req, res, next) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+        let guid = req.params.guid;
+
+        try {
+            let group = await GroupService.findOne(guid);
+
+            if (group) {
+                next(); return;
+            } else {
+                response['error'] = {
+                    code: 'ERR_GUID_NOT_FOUND',
+                    params: {
+                        guid: guid
+                    }
+                }
+            }
+        } catch (error) {
+            response['error'] = {
+                code: errorCode,
+                trace: error
+            }
+        }
+        Helper.send(response);
     }
 };
 
