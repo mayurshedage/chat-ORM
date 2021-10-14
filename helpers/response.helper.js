@@ -48,25 +48,24 @@ exports.getErrorMessage = (error) => {
 };
 
 exports.send = (response) => {
+    let responseData = {};
+    let responseCode = 200;
+
     if (response.hasOwnProperty('data')) {
         if (response['data'].hasOwnProperty('code')) {
             let processSuccess = this.getSuccessMessage(response['data']);
 
-            response['res'].status(200).json({
-                data: {
-                    success: true,
-                    message: processSuccess['message']
-                }
-            });
+            responseData['data'] = {
+                success: true,
+                message: processSuccess['message']
+            }
         } else {
-            response['res'].status(200).json({
-                data: response['data']
-            });
+            responseData['data'] = response['data']
         }
     } else if (response.hasOwnProperty('error')) {
         let error = response['error'];
         let processError = this.getErrorMessage(error);
-        let responseCode = processError['responseCode'];
+        responseCode = processError['responseCode'];
 
         delete processError['responseCode'];
 
@@ -74,30 +73,31 @@ exports.send = (response) => {
             code: error['code'],
             message: processError['message']
         }
-        if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
+        if (error.hasOwnProperty('trace')) {
             let trace = error['trace'];
-            errorResponse['trace'] = 'Nothing to trace.';
 
-            if (error.hasOwnProperty('trace')) {
-                [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
-                    if (error['trace'] instanceof e) {
-                        errorResponse['trace'] = trace['stack'];
-                        errorResponse['devMessage'] = trace['message'];
-                    }
-                });
-            }
+            [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
+                if (trace instanceof e) {
+                    errorResponse['debug'] = {
+                        trace: trace['stack']
+                    };
+                    errorResponse['devMessage'] = trace['message'];
+                }
+            });
         }
-        response['res'].status(responseCode).json({
-            error: errorResponse
-        });
+        responseData['error'] = errorResponse;
     } else {
         let processError = this.getErrorMessage([]);
 
-        response['res'].status(responseCode).json({
-            error: {
-                code: 'ERR_BAD_ERROR_RESPONSE',
-                message: processError['message']
-            }
-        });
+        responseData['error'] = {
+            code: 'ERR_BAD_ERROR_RESPONSE',
+            message: processError['message']
+        }
     }
+    if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
+        responseData['debug'] = {
+            debugSQL: response['res']['sql']
+        }
+    }
+    response['res'].status(responseCode).json(responseData);
 };

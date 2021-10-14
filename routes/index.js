@@ -5,7 +5,7 @@ module.exports = (app, req, res, next) => {
     const routePath = url.split("?").shift();
     const routeScope = req['apiType'] === 'client' ? 'sdk' : 'admin';
 
-    if (req.query.debug == 1 && req.query.debugCode == process.env.DEBUG_HASH) {
+    if (req.query.debug && req.query.debug == process.env.DEBUG_HASH) {
         req['debug'] = 1;
     }
     req['requestOwner'] = routeScope === 'sdk' ? 'SDK' : 'API';

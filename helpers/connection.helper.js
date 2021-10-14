@@ -15,10 +15,18 @@ exports.configureDBConnection = async (appId, apiType, req, res, callback) => {
     const db = {};
     let sequelize;
 
+    res['sql'] = { operator: [] };
+
+    const customLogger = (msg) => {
+        res['sql']['operator'].push({
+            query: msg.replace("Executing (default): ", "")
+        });
+    }
+
     sequelize = new Sequelize(ON_DEMAND_DB, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
         host: process.env.DB_HOST,
         dialect: "mysql",
-        logging: console.log,
+        logging: customLogger,
         pool: {
             max: 25,
             min: 0,
