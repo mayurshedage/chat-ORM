@@ -1,14 +1,15 @@
 require('dotenv').config();
 
-const crypto = require('crypto');
-const mysql = require('mysql2/promise');
-const config = require('../config/database');
-
 const fs = require('fs');
 const path = require('path');
-const dbModels = require('../models');
+const crypto = require('crypto');
 const { exec } = require("child_process");
+
+const mysql = require('mysql2/promise');
+const config = require('../config/database');
 const { Sequelize, Model } = require('sequelize');
+
+const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
 
 module.exports = db = {};
@@ -115,7 +116,6 @@ const migrate = async (req) => {
 
     // Execute new migration files
     exec("node migration.js up " + appId, (error, stdout, stderr) => {
-        // Set migrations hash from redis for current database
         console.log(stdout);
     });
 }
