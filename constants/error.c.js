@@ -3,9 +3,17 @@ const HttpResponse = require('./httpcode.c');
 exports.get = (error) => {
     const errorMessages = (params = []) => {
         return {
+            'ERR_BAD_REGION_SECRET': {
+                message: `Incorrect region secret.`,
+                responseCode: HttpResponse.HTTP_BAD_REQUEST
+            },
             'ERR_BAD_ERROR_RESPONSE': {
                 message: `This is a server side error. Please check with the developer@support.`,
                 responseCode: HttpResponse.HTTP_EXPECTATION_FAILED
+            },
+            'ERR_OPERATION_FAILED': {
+                message: `An error occured while performing this operation. 'Please try again.`,
+                responseCode: HttpResponse.HTTP_INTERNAL_SERVER_ERROR
             },
             'ERR_UID_NOT_FOUND': {
                 message: `The uid ${params['uid']} not found. Make sure you have created a user with uid ${params['uid']}`,

@@ -15,24 +15,8 @@ app.use(express.urlencoded({
 
 app.use(async (req, res, next) => {
     try {
-        const hostName = req.headers.host;
-
-        const regx = new RegExp(/^([a-zA-Z0-9]+)\.(api)\-([a-z]+)\.([a-z]+)\.([a-z])/gm);
-        const checkHost = regx.test(hostName); // appid100.api-client.cometondemand.com - (Correct!)
-
-        if (!checkHost) throw new Error('Request URL not found' + hostName);
-
-        const appInfo = hostName.split(".");
-        const appId = appInfo[0];
-        const apiType = appInfo[1].split("-")[1]; // only client or us
-
-        if (![process.env.US_REGION, process.env.CLIENT_REGION].includes(apiType)) throw new Error('Request URL not found' + apiType);
-
-        req['apiType'] = apiType;
-
-        await Helper.configureDBConnection(appId, apiType, req, res, () => {
-            require('./routes/index')(app, req, res, next);
-        });
+        require('./routes/index')(app, req);
+        next();
     } catch (error) {
         console.log(error);
         res.status(404).send('Request URL not found');

@@ -96,7 +96,8 @@ exports.send = (response) => {
     }
     if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
         responseData['debug'] = {
-            debugSQL: response['res']['sql']
+            debugSQL: response['res']['sql'],
+            trace: response['debugTrace'] ?? {}
         }
     }
     response['res'].status(responseCode).json(responseData);
