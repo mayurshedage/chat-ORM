@@ -11,6 +11,7 @@ let BlockedUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
 
@@ -34,9 +35,12 @@ let BlockedUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['blockUser:validate:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -45,6 +49,7 @@ let BlockedUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -54,9 +59,12 @@ let BlockedUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['blockUser:block:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -65,6 +73,7 @@ let BlockedUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         let responseData = {};
@@ -118,9 +127,12 @@ let BlockedUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['blockUser:unblock:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };

@@ -11,6 +11,7 @@ let AuthTokenController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -29,9 +30,12 @@ let AuthTokenController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['auth:findAll:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -40,6 +44,7 @@ let AuthTokenController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_auth_token = req.params.auth_token;
 
@@ -59,9 +64,12 @@ let AuthTokenController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['auth:find:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -70,6 +78,7 @@ let AuthTokenController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let tokenToCreate = req.body;
         let uid = req.params.uid;
@@ -86,9 +95,12 @@ let AuthTokenController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['auth:create:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -97,6 +109,7 @@ let AuthTokenController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_auth_token = req.params.auth_token;
         let tokenToUpdate = req.body;
@@ -121,9 +134,12 @@ let AuthTokenController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['auth:update:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -132,6 +148,7 @@ let AuthTokenController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_auth_token = req.params.auth_token;
 
@@ -156,13 +173,22 @@ let AuthTokenController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['auth:delete:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
     validate: async (req, res, next) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let debug = new Object();
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let authToken = req.headers['authtoken'];
 
         try {
@@ -181,9 +207,12 @@ let AuthTokenController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['auth:validate:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };

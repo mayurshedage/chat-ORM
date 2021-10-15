@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const cors = require('cors');
 const express = require('express');
-const Helper = require('./helpers/connection.helper');
 
 const app = express();
 
@@ -18,7 +17,7 @@ app.use(async (req, res, next) => {
         require('./routes/index')(app, req, res);
         next();
     } catch (error) {
-        console.log(error);
+        console.log('error', error);
         res.status(404).send('Request URL not found');
     }
 });

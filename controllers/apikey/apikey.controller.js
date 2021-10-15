@@ -11,6 +11,7 @@ let APIKeyController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -29,9 +30,12 @@ let APIKeyController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['apikey:findAll:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -40,6 +44,7 @@ let APIKeyController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.params.apiKey;
 
@@ -59,9 +64,12 @@ let APIKeyController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['apikey:find:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -70,6 +78,7 @@ let APIKeyController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let keyToCreate = req.body;
 
@@ -84,9 +93,12 @@ let APIKeyController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['apikey:create:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -95,6 +107,7 @@ let APIKeyController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.params.apiKey;
         let keyToUpdate = req.body;
@@ -119,9 +132,12 @@ let APIKeyController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['apikey:update:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -130,6 +146,7 @@ let APIKeyController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.params.apiKey;
 
@@ -154,9 +171,12 @@ let APIKeyController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['apikey:delete:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -165,6 +185,7 @@ let APIKeyController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_apikey = req.headers.apikey;
 
@@ -193,9 +214,12 @@ let APIKeyController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['mw:apikey:validate:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };

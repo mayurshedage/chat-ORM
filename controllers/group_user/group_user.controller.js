@@ -12,6 +12,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_guid = req.params.guid;
 
@@ -31,9 +32,12 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:findAll:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -42,6 +46,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
@@ -63,9 +68,12 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:find:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -74,6 +82,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.body.uid;
         let req_guid = req.params.guid;
@@ -104,10 +113,13 @@ let GroupUserController = {
             } else {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['group:create:error'] = error;
             }
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -116,6 +128,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
@@ -140,9 +153,12 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:update:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -151,6 +167,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
@@ -180,9 +197,12 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:delete:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -220,9 +240,12 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:banUnban:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };

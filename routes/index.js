@@ -21,8 +21,8 @@ module.exports = (app, req, res) => {
 
         let subdomainPrefix = subdomain.split('-')[0];
         let routes = {
-            api: 'admin',
-            apiclient: 'sdk'
+            chat: 'admin',
+            chatclient: 'sdk'
         }
         if (req.query.debug && req.query.debug == process.env.DEBUG_HASH) {
             req['debug'] = 1;

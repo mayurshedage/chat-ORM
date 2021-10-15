@@ -11,6 +11,7 @@ let FriendController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
 
@@ -34,9 +35,12 @@ let FriendController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['friend:findAll:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -45,15 +49,28 @@ let FriendController = {
             req: req,
             res: res
         });
+        let debug = new Object();
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let friendsObj = {};
 
         (async () => {
             for (let i = 0; i < Object.keys(req.body).length; i++) {
                 let status = Object.keys(req.body)[i];
-                friendsObj[status] = await friendsManager(req.body[status], status, req, res);
+
+                try {
+                    friendsObj[status] = await friendsManager(req.body[status], status, req, res);
+                } catch (error) {
+                    response['error'] = {
+                        code: errorCode,
+                        params: []
+                    }
+                    debug['friend:create:error'] = error;
+                }
             };
         })().then(_ => {
             response['data'] = friendsObj;
+            response['debugTrace'] = debug;
+
             Helper.send(response);
         })
     },
@@ -63,6 +80,7 @@ let FriendController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let fuids = req.body['friends'];
@@ -76,9 +94,12 @@ let FriendController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['friend:delete:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };

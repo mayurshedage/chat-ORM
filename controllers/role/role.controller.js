@@ -10,6 +10,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -28,9 +29,12 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:findAll:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -39,6 +43,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_role = req.params.role;
 
@@ -58,9 +63,12 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:find:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -69,6 +77,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let roleToCreate = req.body;
 
@@ -90,10 +99,13 @@ let RoleController = {
             } else {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['group:create:error'] = error;
             }
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -102,6 +114,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_role = req.params.role;
         let roleToUpdate = req.body;
@@ -126,9 +139,12 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:update:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -137,6 +153,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_role = req.params.role;
 
@@ -161,9 +178,12 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:delete:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };

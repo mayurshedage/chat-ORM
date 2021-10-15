@@ -17,14 +17,15 @@ let AppController = {
         if (proceed) {
             try {
                 await createUserWithDB(req);
+
                 debug['createUserWithDB'] = true;
             } catch (error) {
-                debug['createUserWithDB::Exception'] = error['message'];
                 response['error'] = {
                     code: 'ERR_OPERATION_FAILED',
                     params: []
                 }
                 proceed = false;
+                debug['createUserWithDB::Exception'] = error['message'];
             }
         }
         if (proceed) {
@@ -32,12 +33,12 @@ let AppController = {
                 await GlobalHelper.migrate(req, res);
                 debug['migrate'] = true;
             } catch (error) {
-                debug['migrate::Exception'] = error['message'];
                 response['error'] = {
                     code: 'ERR_OPERATION_FAILED',
                     params: []
                 }
                 proceed = false;
+                debug['migrate::Exception'] = error['message'];
             }
         }
         if (proceed) {
@@ -73,7 +74,6 @@ let AppController = {
                 })['message']
             }
         } catch (error) {
-            console.log(error);
             response['error'] = {
                 code: 'ERR_OPERATION_FAILED',
                 params: []
@@ -90,6 +90,7 @@ let AppController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let regionSecret = req.headers.apikey;
 
         let errorCode = 'ERR_BAD_REGION_SECRET';

@@ -29,7 +29,7 @@ const getAppId = (req) => {
     }
 
     if (!appId) {
-        appId = req.headers.appId.trim() ?? false;
+        appId = req.headers.appid ? req.headers.appid.trim() : false;
     }
 
     return appId;
@@ -130,5 +130,13 @@ const migrate = async (req, res) => {
 }
 
 module.exports = {
-    configureCurrentInstance, getCreatorConnection, getInstancePassword, getInstanceUser, getRegionSecret, getSequelizeConnection, migrate, getAppId, getAppPrefix
+    configureCurrentInstance,
+    getCreatorConnection,
+    getInstancePassword,
+    getInstanceUser,
+    getRegionSecret,
+    getSequelizeConnection,
+    migrate,
+    getAppId,
+    getAppPrefix
 };

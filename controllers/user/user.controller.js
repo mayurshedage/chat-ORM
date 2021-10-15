@@ -10,6 +10,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -28,9 +29,12 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:findAll:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -39,6 +43,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
@@ -58,9 +63,12 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:find:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -69,6 +77,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let userToCreate = req.body;
 
@@ -89,10 +98,13 @@ let UserController = {
             } else {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['user:create:error'] = error;
             }
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -101,6 +113,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
         let userToUpdate = req.body;
@@ -125,9 +138,12 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:update:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -136,6 +152,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
@@ -160,9 +177,12 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:delete:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     },
 
@@ -171,6 +191,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
@@ -190,9 +211,12 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['mw:user:checkUserExists:error'] = error;
         }
+        response['debugTrace'] = debug;
+
         Helper.send(response);
     }
 };
