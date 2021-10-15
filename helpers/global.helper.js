@@ -25,11 +25,11 @@ const getAppId = (req) => {
     let splitHttpHost = hostName.split('.');
 
     if (splitHttpHost.length == 4) {
-        appId = splitHttpHost[0];
+        appId = splitHttpHost[0] ?? false;
     }
 
     if (!appId) {
-        appId = req.headers.appId.trim();
+        appId = req.headers.appId.trim() ?? false;
     }
 
     return appId;
@@ -116,7 +116,7 @@ const migrate = async (req) => {
 
     // Execute new migration files
     exec("node migration.js up " + appId, (error, stdout, stderr) => {
-        console.log(stdout);
+        console.log('finished running migrations');
     });
 }
 

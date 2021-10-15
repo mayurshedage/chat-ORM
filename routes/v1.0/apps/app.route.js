@@ -7,6 +7,7 @@ const router = express.Router();
 
 module.exports = (app) => {
     router.post('/', AppController.create);
+    router.delete('/', AppController.delete);
 
     app.use('/v1.0/apps',
         header('apiKey').not().isEmpty(),

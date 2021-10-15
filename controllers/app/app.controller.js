@@ -51,6 +51,40 @@ let AppController = {
         Helper.send(response);
     },
 
+    delete: async (req, res) => {
+        let response = new Object({
+            req: req,
+            res: res
+        });
+        let debug = new Object();
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
+        let appId = GlobalHelper.getAppId(req);
+
+        try {
+            await dropUserWithDB(appId);
+
+            response['data'] = {
+                success: true,
+                message: Helper.getSuccessMessage({
+                    code: 'OK_APP_DELETED',
+                    params: {
+                        appId: appId
+                    }
+                })['message']
+            }
+        } catch (error) {
+            console.log(error);
+            response['error'] = {
+                code: 'ERR_OPERATION_FAILED',
+                params: []
+            }
+            debug['__DropDB::Exception'] = error['message'];
+        }
+        response['debugTrace'] = debug;
+
+        Helper.send(response);
+    },
+
     checkRegionSecret: async (req, res, next) => {
         let response = new Object({
             req: req,
@@ -85,7 +119,7 @@ const createUserWithDB = async (req) => {
         const connection = await GlobalHelper.getCreatorConnection();
 
         await connection.query(
-            `CREATE USER IF NOT EXISTS ${user}@'%'
+            `CREATE USER IF NOT EXISTS '${user}'@'%'
                 IDENTIFIED WITH mysql_native_password
                 BY '${password}'`
         );
@@ -94,11 +128,26 @@ const createUserWithDB = async (req) => {
         );
         await connection.query(
             `GRANT ALL ON ${user}.*
-            TO ${user}@'%'`
+            TO '${user}'@'%'`
         );
         await connection.query(
             `GRANT TRIGGER, CREATE ROUTINE ON ${user}.*
-            TO ${user}@'%'`
+            TO '${user}'@'%'`
+        );
+        connection.end();
+    }
+};
+
+const dropUserWithDB = async (appId) => {
+    const user = GlobalHelper.getInstanceUser(appId);
+    const connection = await GlobalHelper.getCreatorConnection();
+
+    if (appId) {
+        await connection.query(
+            `DROP USER IF EXISTS '${user}'@'%'`
+        );
+        await connection.query(
+            `DROP DATABASE IF EXISTS ${user}`
         );
         connection.end();
     }
