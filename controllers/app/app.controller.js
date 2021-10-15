@@ -29,7 +29,7 @@ let AppController = {
         }
         if (proceed) {
             try {
-                await GlobalHelper.migrate(req);
+                await GlobalHelper.migrate(req, res);
                 debug['migrate'] = true;
             } catch (error) {
                 debug['migrate::Exception'] = error['message'];

@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-module.exports = (app, req) => {
+module.exports = (app, req, res) => {
     const url = req.url;
     const hostName = req.headers.host;
     const routePath = url.split('?').shift();
@@ -29,7 +29,9 @@ module.exports = (app, req) => {
         }
 
         if (routes.hasOwnProperty(subdomainPrefix)) {
-            require('./' + routePath.split('/')[1] + '/' + routes[subdomainPrefix] + '/' + routes[subdomainPrefix])(app, routePath.split('/')[2].slice(0, -1), req);
+            const currentRoute = routePath.split('/')[2].slice(0, -1);
+
+            require('./' + routePath.split('/')[1] + '/' + routes[subdomainPrefix] + '/' + routes[subdomainPrefix])(app, req, res, currentRoute);
         }
     } else {
         throw new Error('Request URL not found');

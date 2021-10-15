@@ -54,15 +54,23 @@ const getCreatorConnection = async () => {
     return await mysql.createConnection({ host, port, user, password });
 };
 
-const getSequelizeConnection = (req) => {
+const getSequelizeConnection = (req, res) => {
     const appId = getAppId(req);
     const user = getInstanceUser(appId);
     const password = getInstancePassword(user);
 
+    res['debugSQL'] = {
+        operator: []
+    };
+
     return new Sequelize(user, user, password, {
         host: process.env.DB_HOST,
         dialect: "mysql",
-        logging: console.log
+        logging: (query) => {
+            res['debugSQL']['operator'].push({
+                query: query.replace("Executing (default): ", "")
+            });
+        }
     });
 };
 
@@ -89,16 +97,17 @@ const configureModels = (sequelize) => {
     dbModels['onDemandDB'] = db;
 }
 
-const configureCurrentInstance = async (req, callback) => {
-    let sequelize = getSequelizeConnection(req);
+const configureCurrentInstance = async (req, res, callback) => {
+    let sequelize = getSequelizeConnection(req, res);
     configureModels(sequelize);
 
     if (callback) callback();
 };
 
-const migrate = async (req) => {
+const migrate = async (req, res) => {
     const appId = getAppId(req);
-    const sequelize = getSequelizeConnection(req);
+    const sequelize = getSequelizeConnection(req, res);
+
     configureModels(sequelize);
 
     // Sync existing model with database

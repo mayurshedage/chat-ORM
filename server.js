@@ -15,7 +15,7 @@ app.use(express.urlencoded({
 
 app.use(async (req, res, next) => {
     try {
-        require('./routes/index')(app, req);
+        require('./routes/index')(app, req, res);
         next();
     } catch (error) {
         console.log(error);
