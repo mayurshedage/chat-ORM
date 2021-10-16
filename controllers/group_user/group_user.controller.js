@@ -1,9 +1,9 @@
 "use strict";
 
-const UserService = require('../user/user.service');
 const GroupService = require('../group/group.service');
 const GroupUserService = require('./group_user.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let GroupUserController = {
 
@@ -25,7 +25,7 @@ let GroupUserController = {
                 let filteredGroupUsers = [];
 
                 group_users.forEach(row => {
-                    filteredGroupUsers.push(Helper.removeEmptyValues(row));
+                    filteredGroupUsers.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredGroupUsers;
             }
@@ -38,7 +38,7 @@ let GroupUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -74,7 +74,7 @@ let GroupUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -96,7 +96,7 @@ let GroupUserController = {
             let group_user = await GroupUserService.create(addUserToGroup);
 
             if (group_user) {
-                response['data'] = Helper.removeEmptyValues(group_user);
+                response['data'] = removeEmptyValues(group_user);
 
                 let groups = await GroupUserService.findAll(req_guid);
                 await GroupService.update(req_guid, { membersCount: groups.length });
@@ -120,7 +120,7 @@ let GroupUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -140,7 +140,7 @@ let GroupUserController = {
             if (result && result[0] == 1) {
                 let group_user = await GroupUserService.findOne(req_guid, req_uid);
 
-                response['data'] = Helper.removeEmptyValues(group_user);
+                response['data'] = removeEmptyValues(group_user);
             } else {
                 response['error'] = {
                     code: 'ERR_NOT_A_MEMBER',
@@ -159,7 +159,7 @@ let GroupUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -203,7 +203,7 @@ let GroupUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     banUnban: async (key, req, res) => {
@@ -246,7 +246,7 @@ let GroupUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 

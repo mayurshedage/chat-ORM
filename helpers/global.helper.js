@@ -14,6 +14,15 @@ const modelsDir = path.join(__dirname, '../models');
 
 module.exports = db = {};
 
+const removeEmptyValues = (obj) => {
+    Object.keys(obj).forEach((key) => (obj[key] === undefined || obj[key] === null) && delete obj[key]);
+    return obj;
+};
+
+const getCryptoHash = () => {
+    return crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
+};
+
 const getAppPrefix = () => {
     return process.env.APP_PREFIX;
 };
@@ -130,13 +139,15 @@ const migrate = async (req, res) => {
 }
 
 module.exports = {
-    configureCurrentInstance,
-    getCreatorConnection,
-    getInstancePassword,
-    getInstanceUser,
-    getRegionSecret,
-    getSequelizeConnection,
     migrate,
     getAppId,
-    getAppPrefix
+    getAppPrefix,
+    getCryptoHash,
+    getInstanceUser,
+    getRegionSecret,
+    removeEmptyValues,
+    getInstancePassword,
+    getCreatorConnection,
+    getSequelizeConnection,
+    configureCurrentInstance,
 };

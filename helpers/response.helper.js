@@ -1,11 +1,6 @@
 const Success = require('../constants/success.c');
 const Errors = require('../constants/error.c');
 
-exports.removeEmptyValues = (obj) => {
-    Object.keys(obj).forEach((key) => (obj[key] === undefined || obj[key] === null) && delete obj[key]);
-    return obj;
-};
-
 exports.getSuccessMessage = (success) => {
     return Success.get(success);
 };

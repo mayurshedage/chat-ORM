@@ -3,7 +3,8 @@
 const GroupService = require('./group.service');
 const UserService = require('../user/user.service');
 const GroupTagService = require('../group_tag/group_tag.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let GroupController = {
 
@@ -24,7 +25,7 @@ let GroupController = {
                 let filteredGroups = [];
 
                 groups.forEach(row => {
-                    filteredGroups.push(Helper.removeEmptyValues(row));
+                    filteredGroups.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredGroups;
             }
@@ -37,7 +38,7 @@ let GroupController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -53,7 +54,7 @@ let GroupController = {
             let group = await GroupService.findOne(req_group);
 
             if (group) {
-                response['data'] = Helper.removeEmptyValues(group);
+                response['data'] = removeEmptyValues(group);
             } else {
                 response['error'] = {
                     code: 'ERR_GUID_NOT_FOUND',
@@ -71,7 +72,7 @@ let GroupController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -108,7 +109,7 @@ let GroupController = {
                 let group = await GroupService.create(groupToCreate);
 
                 if (group) {
-                    response['data'] = Helper.removeEmptyValues(group);
+                    response['data'] = removeEmptyValues(group);
                 }
                 if (req.body.tags && req.body.tags.length) {
                     req.body.tags.map(tag => {
@@ -135,7 +136,7 @@ let GroupController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -174,7 +175,7 @@ let GroupController = {
                 if (result) {
                     let group = await GroupService.findOne(guid);
 
-                    response['data'] = Helper.removeEmptyValues(group);
+                    response['data'] = removeEmptyValues(group);
 
                     if (req.body.tags && req.body.tags.length) {
                         req.body.tags.map(tag => {
@@ -203,7 +204,7 @@ let GroupController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -242,7 +243,7 @@ let GroupController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     checkGroupExists: async (req, res, next) => {
@@ -276,7 +277,7 @@ let GroupController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 

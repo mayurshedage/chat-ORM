@@ -1,7 +1,8 @@
 "use strict";
 
 const RoleService = require('./role.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let RoleController = {
 
@@ -22,7 +23,7 @@ let RoleController = {
                 let filterRoles = [];
 
                 roles.forEach(row => {
-                    filterRoles.push(Helper.removeEmptyValues(row));
+                    filterRoles.push(removeEmptyValues(row));
                 });
                 response['data'] = filterRoles;
             }
@@ -35,7 +36,7 @@ let RoleController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -51,7 +52,7 @@ let RoleController = {
             let role = await RoleService.findOne(req_role);
 
             if (role) {
-                response['data'] = Helper.removeEmptyValues(role);
+                response['data'] = removeEmptyValues(role);
             } else {
                 response['error'] = {
                     code: 'ERR_ROLE_NOT_FOUND',
@@ -69,7 +70,7 @@ let RoleController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -87,7 +88,7 @@ let RoleController = {
         try {
             let role = await RoleService.create(roleToCreate);
 
-            if (role) response['data'] = Helper.removeEmptyValues(role);
+            if (role) response['data'] = removeEmptyValues(role);
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                 response['error'] = {
@@ -106,7 +107,7 @@ let RoleController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -127,7 +128,7 @@ let RoleController = {
             if (result && result[0] == 1) {
                 let role = await RoleService.findOne(req_role);
 
-                response['data'] = Helper.removeEmptyValues(role);
+                response['data'] = removeEmptyValues(role);
             } else {
                 response['error'] = {
                     code: 'ERR_ROLE_NOT_FOUND',
@@ -145,7 +146,7 @@ let RoleController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -184,7 +185,7 @@ let RoleController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 

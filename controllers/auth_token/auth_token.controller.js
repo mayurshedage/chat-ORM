@@ -1,8 +1,8 @@
 "use strict";
 
-const crypto = require('crypto');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
 const AuthTokenService = require('./auth_token.service');
+const { getCryptoHash, removeEmptyValues } = require('../../helpers/global.helper');
 
 let AuthTokenController = {
 
@@ -23,7 +23,7 @@ let AuthTokenController = {
                 let filteredAuthTokens = [];
 
                 auth_tokens.forEach(row => {
-                    filteredAuthTokens.push(Helper.removeEmptyValues(row));
+                    filteredAuthTokens.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredAuthTokens;
             }
@@ -36,7 +36,7 @@ let AuthTokenController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -52,7 +52,7 @@ let AuthTokenController = {
             let auth_token = await AuthTokenService.findOne(req_auth_token);
 
             if (auth_token) {
-                response['data'] = Helper.removeEmptyValues(auth_token);
+                response['data'] = removeEmptyValues(auth_token);
             } else {
                 response['error'] = {
                     code: 'AUTH_ERR_AUTH_TOKEN_NOT_FOUND',
@@ -70,7 +70,7 @@ let AuthTokenController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -85,13 +85,13 @@ let AuthTokenController = {
 
         tokenToCreate.uid = uid;
         tokenToCreate.apiKey = req.headers.apikey;
-        tokenToCreate.authToken = uid + '_' + crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
+        tokenToCreate.authToken = uid + '_' + getCryptoHash();
         tokenToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
             let auth_token = await AuthTokenService.create(tokenToCreate);
 
-            if (auth_token) response['data'] = Helper.removeEmptyValues(auth_token);
+            if (auth_token) response['data'] = removeEmptyValues(auth_token);
         } catch (error) {
             response['error'] = {
                 code: errorCode,
@@ -101,7 +101,7 @@ let AuthTokenController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -122,7 +122,7 @@ let AuthTokenController = {
             if (result && result[0] == 1) {
                 let auth_token = await AuthTokenService.findOne(req_auth_token);
 
-                response['data'] = Helper.removeEmptyValues(auth_token);
+                response['data'] = removeEmptyValues(auth_token);
             } else {
                 response['error'] = {
                     code: 'AUTH_ERR_AUTH_TOKEN_NOT_FOUND',
@@ -140,7 +140,7 @@ let AuthTokenController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -179,7 +179,7 @@ let AuthTokenController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     validate: async (req, res, next) => {
@@ -213,7 +213,7 @@ let AuthTokenController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 

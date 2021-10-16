@@ -2,7 +2,8 @@
 
 const UserService = require('../user/user.service');
 const BlockedUserService = require('./blocked_user.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let BlockedUserController = {
 
@@ -25,7 +26,7 @@ let BlockedUserController = {
 
                 blocked_users.forEach(row => {
                     filteredBlockUsers.push(
-                        Helper.removeEmptyValues(
+                        removeEmptyValues(
                             JSON.parse(JSON.stringify(row.user))
                         )
                     );
@@ -41,7 +42,7 @@ let BlockedUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     block: async (req, res) => {
@@ -65,7 +66,7 @@ let BlockedUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     unblock: async (req, res) => {
@@ -99,7 +100,7 @@ let BlockedUserController = {
                     let blockedUid = usersToUnblock[index];
                     responseData[blockedUid] = {
                         "success": true,
-                        "message": Helper.getSuccessMessage({
+                        "message": AppResponse.getSuccessMessage({
                             code: 'OK_UNBLOCKED',
                             params: {
                                 req_uid: req_uid,
@@ -113,7 +114,7 @@ let BlockedUserController = {
                     let blockedUid = notFountUsers[index];
                     responseData[blockedUid] = {
                         "success": true,
-                        "message": Helper.getSuccessMessage({
+                        "message": AppResponse.getSuccessMessage({
                             code: 'OK_ALREADY_UNBLOCKED',
                             params: {
                                 req_uid: req_uid,
@@ -133,7 +134,7 @@ let BlockedUserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 
@@ -151,7 +152,7 @@ const blockedUserManager = async (blockedUids, req) => {
                 if (blockedUid == req_uid) {
                     response[blockedUid] = {
                         "success": false,
-                        "message": Helper.getErrorMessage({
+                        "message": AppResponse.getErrorMessage({
                             code: 'ERR_CANNOT_BLOCK_SELF',
                             params: {
                                 uid: req_uid,
@@ -165,7 +166,7 @@ const blockedUserManager = async (blockedUids, req) => {
 
                         response[blockedUid] = {
                             "success": true,
-                            "message": Helper.getSuccessMessage({
+                            "message": AppResponse.getSuccessMessage({
                                 code: 'OK_BLOCKED',
                                 params: {
                                     uid: req_uid,
@@ -177,7 +178,7 @@ const blockedUserManager = async (blockedUids, req) => {
                         if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                             response[blockedUid] = {
                                 "success": true,
-                                "message": Helper.getSuccessMessage({
+                                "message": AppResponse.getSuccessMessage({
                                     code: 'OK_ALREADY_BLOCKED',
                                     params: {
                                         uid: req_uid,
@@ -191,7 +192,7 @@ const blockedUserManager = async (blockedUids, req) => {
             } else {
                 response[blockedUid] = {
                     "success": false,
-                    "message": Helper.getErrorMessage({
+                    "message": AppResponse.getErrorMessage({
                         code: 'ERR_UID_NOT_FOUND',
                         params: {
                             uid: blockedUid

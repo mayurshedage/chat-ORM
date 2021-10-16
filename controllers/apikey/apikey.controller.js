@@ -1,8 +1,8 @@
 "use strict";
 
-const crypto = require('crypto');
 const APIKeyService = require('./apikey.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { getCryptoHash, removeEmptyValues } = require('../../helpers/global.helper');
 
 let APIKeyController = {
 
@@ -23,7 +23,7 @@ let APIKeyController = {
                 let filteredKeys = [];
 
                 apikeys.forEach(row => {
-                    filteredKeys.push(Helper.removeEmptyValues(row));
+                    filteredKeys.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredKeys;
             }
@@ -36,7 +36,7 @@ let APIKeyController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -52,7 +52,7 @@ let APIKeyController = {
             let apikey = await APIKeyService.findOne(req_apikey);
 
             if (apikey) {
-                response['data'] = Helper.removeEmptyValues(apikey);
+                response['data'] = removeEmptyValues(apikey);
             } else {
                 response['error'] = {
                     code: 'AUTH_ERR_APIKEY_NOT_FOUND',
@@ -70,7 +70,7 @@ let APIKeyController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -82,14 +82,14 @@ let APIKeyController = {
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let keyToCreate = req.body;
 
-        keyToCreate.apiKey = crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
+        keyToCreate.apiKey = getCryptoHash();
         keyToCreate.createdBy = req['requestOwner'];
         keyToCreate.createdAt = Math.floor(+new Date() / 1000);
 
         try {
             let apikey = await APIKeyService.create(keyToCreate);
 
-            if (apikey) response['data'] = Helper.removeEmptyValues(apikey);
+            if (apikey) response['data'] = removeEmptyValues(apikey);
         } catch (error) {
             response['error'] = {
                 code: errorCode,
@@ -99,7 +99,7 @@ let APIKeyController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -120,7 +120,7 @@ let APIKeyController = {
             if (result && result[0] == 1) {
                 let apikey = await APIKeyService.findOne(req_apikey);
 
-                response['data'] = Helper.removeEmptyValues(apikey);
+                response['data'] = removeEmptyValues(apikey);
             } else {
                 response['error'] = {
                     code: 'AUTH_ERR_APIKEY_NOT_FOUND',
@@ -138,7 +138,7 @@ let APIKeyController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -177,7 +177,7 @@ let APIKeyController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     validate: async (req, res, next) => {
@@ -220,7 +220,7 @@ let APIKeyController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 

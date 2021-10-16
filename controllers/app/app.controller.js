@@ -1,7 +1,7 @@
 "use strict";
 
-const Helper = require('../../helpers/response.helper');
-const GlobalHelper = require('../../helpers/global.helper');
+const AppResponse = require('../../helpers/response.helper');
+const Helper = require('../../helpers/global.helper');
 
 let AppController = {
 
@@ -30,7 +30,7 @@ let AppController = {
         }
         if (proceed) {
             try {
-                await GlobalHelper.migrate(req, res);
+                await Helper.migrate(req, res);
                 debug['migrate'] = true;
             } catch (error) {
                 response['error'] = {
@@ -49,7 +49,7 @@ let AppController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -59,14 +59,14 @@ let AppController = {
         });
         let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
-        let appId = GlobalHelper.getAppId(req);
+        let appId = Helper.getAppId(req);
 
         try {
             await dropUserWithDB(appId);
 
             response['data'] = {
                 success: true,
-                message: Helper.getSuccessMessage({
+                message: AppResponse.getSuccessMessage({
                     code: 'OK_APP_DELETED',
                     params: {
                         appId: appId
@@ -82,7 +82,7 @@ let AppController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     checkRegionSecret: async (req, res, next) => {
@@ -99,7 +99,7 @@ let AppController = {
         };
 
         if (
-            regionSecret && regionSecret == GlobalHelper.getRegionSecret()
+            regionSecret && regionSecret == Helper.getRegionSecret()
         ) {
             return next();
         }
@@ -107,17 +107,17 @@ let AppController = {
             code: errorCode,
             params: errorParams
         }
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 
 const createUserWithDB = async (req) => {
-    const appId = GlobalHelper.getAppId(req);
+    const appId = Helper.getAppId(req);
 
     if (appId) {
-        const user = GlobalHelper.getInstanceUser(appId);
-        const password = GlobalHelper.getInstancePassword(user);
-        const connection = await GlobalHelper.getCreatorConnection();
+        const user = Helper.getInstanceUser(appId);
+        const password = Helper.getInstancePassword(user);
+        const connection = await Helper.getCreatorConnection();
 
         await connection.query(
             `CREATE USER IF NOT EXISTS '${user}'@'%'
@@ -140,8 +140,8 @@ const createUserWithDB = async (req) => {
 };
 
 const dropUserWithDB = async (appId) => {
-    const user = GlobalHelper.getInstanceUser(appId);
-    const connection = await GlobalHelper.getCreatorConnection();
+    const user = Helper.getInstanceUser(appId);
+    const connection = await Helper.getCreatorConnection();
 
     if (appId) {
         await connection.query(

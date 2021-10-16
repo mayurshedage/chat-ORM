@@ -1,7 +1,8 @@
 "use strict";
 
 const UserService = require('./user.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let UserController = {
 
@@ -22,7 +23,7 @@ let UserController = {
                 let filteredUsers = [];
 
                 users.forEach(row => {
-                    filteredUsers.push(Helper.removeEmptyValues(row));
+                    filteredUsers.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredUsers;
             }
@@ -35,7 +36,7 @@ let UserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -51,7 +52,7 @@ let UserController = {
             let user = await UserService.findOne(uid);
 
             if (user) {
-                response['data'] = Helper.removeEmptyValues(user);
+                response['data'] = removeEmptyValues(user);
             } else {
                 response['error'] = {
                     code: 'ERR_UID_NOT_FOUND',
@@ -69,7 +70,7 @@ let UserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -86,7 +87,7 @@ let UserController = {
         try {
             let user = await UserService.create(userToCreate);
 
-            if (user) response['data'] = Helper.removeEmptyValues(user);
+            if (user) response['data'] = removeEmptyValues(user);
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                 response['error'] = {
@@ -105,7 +106,7 @@ let UserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -126,7 +127,7 @@ let UserController = {
             if (result && result[0] == 1) {
                 let user = await UserService.findOne(uid);
 
-                response['data'] = Helper.removeEmptyValues(user);
+                response['data'] = removeEmptyValues(user);
             } else {
                 response['error'] = {
                     code: 'ERR_UID_NOT_FOUND',
@@ -144,7 +145,7 @@ let UserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -183,7 +184,7 @@ let UserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     },
 
     checkUserExists: async (req, res, next) => {
@@ -217,7 +218,7 @@ let UserController = {
         }
         response['debugTrace'] = debug;
 
-        Helper.send(response);
+        AppResponse.send(response);
     }
 };
 
