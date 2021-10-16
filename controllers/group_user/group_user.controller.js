@@ -1,9 +1,9 @@
 "use strict";
 
-const UserService = require('../user/user.service');
 const GroupService = require('../group/group.service');
 const GroupUserService = require('./group_user.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let GroupUserController = {
 
@@ -12,6 +12,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_guid = req.params.guid;
 
@@ -24,17 +25,20 @@ let GroupUserController = {
                 let filteredGroupUsers = [];
 
                 group_users.forEach(row => {
-                    filteredGroupUsers.push(Helper.removeEmptyValues(row));
+                    filteredGroupUsers.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredGroupUsers;
             }
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:findAll:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -42,6 +46,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
@@ -63,10 +68,13 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:find:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -74,6 +82,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.body.uid;
         let req_guid = req.params.guid;
@@ -87,7 +96,7 @@ let GroupUserController = {
             let group_user = await GroupUserService.create(addUserToGroup);
 
             if (group_user) {
-                response['data'] = Helper.removeEmptyValues(group_user);
+                response['data'] = removeEmptyValues(group_user);
 
                 let groups = await GroupUserService.findAll(req_guid);
                 await GroupService.update(req_guid, { membersCount: groups.length });
@@ -104,11 +113,14 @@ let GroupUserController = {
             } else {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['group:create:error'] = error;
             }
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -116,6 +128,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
@@ -127,7 +140,7 @@ let GroupUserController = {
             if (result && result[0] == 1) {
                 let group_user = await GroupUserService.findOne(req_guid, req_uid);
 
-                response['data'] = Helper.removeEmptyValues(group_user);
+                response['data'] = removeEmptyValues(group_user);
             } else {
                 response['error'] = {
                     code: 'ERR_NOT_A_MEMBER',
@@ -140,10 +153,13 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:update:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -151,6 +167,7 @@ let GroupUserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let req_guid = req.params.guid;
@@ -180,10 +197,13 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:delete:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     banUnban: async (key, req, res) => {
@@ -220,10 +240,13 @@ let GroupUserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:banUnban:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     }
 };
 

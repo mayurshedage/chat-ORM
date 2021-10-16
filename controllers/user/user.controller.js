@@ -1,7 +1,8 @@
 "use strict";
 
 const UserService = require('./user.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let UserController = {
 
@@ -10,6 +11,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -21,17 +23,20 @@ let UserController = {
                 let filteredUsers = [];
 
                 users.forEach(row => {
-                    filteredUsers.push(Helper.removeEmptyValues(row));
+                    filteredUsers.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredUsers;
             }
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:findAll:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -39,6 +44,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
@@ -46,7 +52,7 @@ let UserController = {
             let user = await UserService.findOne(uid);
 
             if (user) {
-                response['data'] = Helper.removeEmptyValues(user);
+                response['data'] = removeEmptyValues(user);
             } else {
                 response['error'] = {
                     code: 'ERR_UID_NOT_FOUND',
@@ -58,10 +64,13 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:find:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -69,6 +78,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let userToCreate = req.body;
 
@@ -77,7 +87,7 @@ let UserController = {
         try {
             let user = await UserService.create(userToCreate);
 
-            if (user) response['data'] = Helper.removeEmptyValues(user);
+            if (user) response['data'] = removeEmptyValues(user);
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                 response['error'] = {
@@ -89,11 +99,14 @@ let UserController = {
             } else {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['user:create:error'] = error;
             }
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -101,6 +114,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
         let userToUpdate = req.body;
@@ -113,7 +127,7 @@ let UserController = {
             if (result && result[0] == 1) {
                 let user = await UserService.findOne(uid);
 
-                response['data'] = Helper.removeEmptyValues(user);
+                response['data'] = removeEmptyValues(user);
             } else {
                 response['error'] = {
                     code: 'ERR_UID_NOT_FOUND',
@@ -125,10 +139,13 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:update:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -136,6 +153,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
@@ -160,10 +178,13 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['user:delete:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     checkUserExists: async (req, res, next) => {
@@ -171,6 +192,7 @@ let UserController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let uid = req.params.uid;
 
@@ -190,10 +212,13 @@ let UserController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['mw:user:checkUserExists:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     }
 };
 

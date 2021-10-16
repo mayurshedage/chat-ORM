@@ -3,7 +3,8 @@
 const GroupService = require('./group.service');
 const UserService = require('../user/user.service');
 const GroupTagService = require('../group_tag/group_tag.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let GroupController = {
 
@@ -12,6 +13,7 @@ let GroupController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -23,17 +25,20 @@ let GroupController = {
                 let filteredGroups = [];
 
                 groups.forEach(row => {
-                    filteredGroups.push(Helper.removeEmptyValues(row));
+                    filteredGroups.push(removeEmptyValues(row));
                 });
                 response['data'] = filteredGroups;
             }
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:findAll:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -41,6 +46,7 @@ let GroupController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_guid = req.params.guid;
 
@@ -48,7 +54,7 @@ let GroupController = {
             let group = await GroupService.findOne(req_group);
 
             if (group) {
-                response['data'] = Helper.removeEmptyValues(group);
+                response['data'] = removeEmptyValues(group);
             } else {
                 response['error'] = {
                     code: 'ERR_GUID_NOT_FOUND',
@@ -60,10 +66,13 @@ let GroupController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:find:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -71,6 +80,7 @@ let GroupController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let tags = [];
         let proceed = true;
@@ -99,7 +109,7 @@ let GroupController = {
                 let group = await GroupService.create(groupToCreate);
 
                 if (group) {
-                    response['data'] = Helper.removeEmptyValues(group);
+                    response['data'] = removeEmptyValues(group);
                 }
                 if (req.body.tags && req.body.tags.length) {
                     req.body.tags.map(tag => {
@@ -118,12 +128,15 @@ let GroupController = {
                 } else {
                     response['error'] = {
                         code: errorCode,
-                        trace: error
+                        params: []
                     }
+                    debug['group:create:error'] = error;
                 }
             }
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -131,6 +144,7 @@ let GroupController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let tags = [];
         let proceed = true;
@@ -161,7 +175,7 @@ let GroupController = {
                 if (result) {
                     let group = await GroupService.findOne(guid);
 
-                    response['data'] = Helper.removeEmptyValues(group);
+                    response['data'] = removeEmptyValues(group);
 
                     if (req.body.tags && req.body.tags.length) {
                         req.body.tags.map(tag => {
@@ -183,11 +197,14 @@ let GroupController = {
             } catch (error) {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['group:update:error'] = error;
             }
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -195,6 +212,7 @@ let GroupController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let guid = req.params.guid;
 
@@ -219,10 +237,13 @@ let GroupController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:delete:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     checkGroupExists: async (req, res, next) => {
@@ -230,6 +251,7 @@ let GroupController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let guid = req.params.guid;
 
@@ -249,10 +271,13 @@ let GroupController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:checkGroupExists:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     }
 };
 

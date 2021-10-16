@@ -2,7 +2,8 @@
 
 const FriendService = require('./friend.service');
 const UserService = require('../user/user.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let FriendController = {
 
@@ -11,6 +12,7 @@ let FriendController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
 
@@ -24,7 +26,7 @@ let FriendController = {
 
                 friends.forEach(row => {
                     filteredFriends.push(
-                        Helper.removeEmptyValues(
+                        removeEmptyValues(
                             JSON.parse(JSON.stringify(row.user))
                         )
                     );
@@ -34,10 +36,13 @@ let FriendController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['friend:findAll:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -45,16 +50,29 @@ let FriendController = {
             req: req,
             res: res
         });
+        let debug = new Object();
+        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let friendsObj = {};
 
         (async () => {
             for (let i = 0; i < Object.keys(req.body).length; i++) {
                 let status = Object.keys(req.body)[i];
-                friendsObj[status] = await friendsManager(req.body[status], status, req, res);
+
+                try {
+                    friendsObj[status] = await friendsManager(req.body[status], status, req, res);
+                } catch (error) {
+                    response['error'] = {
+                        code: errorCode,
+                        params: []
+                    }
+                    debug['friend:create:error'] = error;
+                }
             };
         })().then(_ => {
             response['data'] = friendsObj;
-            Helper.send(response);
+            response['debugTrace'] = debug;
+
+            AppResponse.send(response);
         })
     },
 
@@ -63,6 +81,7 @@ let FriendController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_uid = req.params.uid;
         let fuids = req.body['friends'];
@@ -76,10 +95,13 @@ let FriendController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['friend:delete:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     }
 };
 
@@ -96,7 +118,7 @@ const friendsManager = async (friendsToAdd, status, req) => {
                 if (uid == req.params.uid) {
                     response[uid] = {
                         "success": false,
-                        "message": Helper.getErrorMessage({
+                        "message": AppResponse.getErrorMessage({
                             code: 'ERR_CANNOT_FORM_SELF_RELATION'
                         })['message']
                     }
@@ -106,7 +128,7 @@ const friendsManager = async (friendsToAdd, status, req) => {
 
                         response[uid] = {
                             "success": true,
-                            "message": Helper.getSuccessMessage({
+                            "message": AppResponse.getSuccessMessage({
                                 code: 'OK_CREATED_RELATIONSHIP_STATUS',
                                 params: {
                                     status: status
@@ -122,7 +144,7 @@ const friendsManager = async (friendsToAdd, status, req) => {
 
                             response[uid] = {
                                 "success": true,
-                                "message": Helper.getSuccessMessage({
+                                "message": AppResponse.getSuccessMessage({
                                     code: 'OK_UPDATED_RELATIONSHIP_STATUS',
                                     params: {
                                         status: status
@@ -135,7 +157,7 @@ const friendsManager = async (friendsToAdd, status, req) => {
             } else {
                 response[uid] = {
                     "success": false,
-                    "message": Helper.getErrorMessage({
+                    "message": AppResponse.getErrorMessage({
                         code: 'ERR_UID_NOT_FOUND',
                         params: {
                             uid: uid

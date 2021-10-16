@@ -4,6 +4,9 @@ exports.get = (success) => {
             'OK_DEFAULT': {
                 message: 'Operation is successful.'
             },
+            'OK_APP_DELETED': {
+                message: `The App with id ${params['appId']} has been deleted successfully.`
+            },
             'OK_DELETED_USER': {
                 message: `User ${params['uid']} has been deleted successfully.`
             },

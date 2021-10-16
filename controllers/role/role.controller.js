@@ -1,7 +1,8 @@
 "use strict";
 
 const RoleService = require('./role.service');
-const Helper = require('../../helpers/response.helper');
+const AppResponse = require('../../helpers/response.helper');
+const { removeEmptyValues } = require('../../helpers/global.helper');
 
 let RoleController = {
 
@@ -10,6 +11,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         try {
@@ -21,17 +23,20 @@ let RoleController = {
                 let filterRoles = [];
 
                 roles.forEach(row => {
-                    filterRoles.push(Helper.removeEmptyValues(row));
+                    filterRoles.push(removeEmptyValues(row));
                 });
                 response['data'] = filterRoles;
             }
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:findAll:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     findOne: async (req, res) => {
@@ -39,6 +44,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_role = req.params.role;
 
@@ -46,7 +52,7 @@ let RoleController = {
             let role = await RoleService.findOne(req_role);
 
             if (role) {
-                response['data'] = Helper.removeEmptyValues(role);
+                response['data'] = removeEmptyValues(role);
             } else {
                 response['error'] = {
                     code: 'ERR_ROLE_NOT_FOUND',
@@ -58,10 +64,13 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:find:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     create: async (req, res) => {
@@ -69,6 +78,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let roleToCreate = req.body;
 
@@ -78,7 +88,7 @@ let RoleController = {
         try {
             let role = await RoleService.create(roleToCreate);
 
-            if (role) response['data'] = Helper.removeEmptyValues(role);
+            if (role) response['data'] = removeEmptyValues(role);
         } catch (error) {
             if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
                 response['error'] = {
@@ -90,11 +100,14 @@ let RoleController = {
             } else {
                 response['error'] = {
                     code: errorCode,
-                    trace: error
+                    params: []
                 }
+                debug['group:create:error'] = error;
             }
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     update: async (req, res) => {
@@ -102,6 +115,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_role = req.params.role;
         let roleToUpdate = req.body;
@@ -114,7 +128,7 @@ let RoleController = {
             if (result && result[0] == 1) {
                 let role = await RoleService.findOne(req_role);
 
-                response['data'] = Helper.removeEmptyValues(role);
+                response['data'] = removeEmptyValues(role);
             } else {
                 response['error'] = {
                     code: 'ERR_ROLE_NOT_FOUND',
@@ -126,10 +140,13 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:update:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     },
 
     delete: async (req, res) => {
@@ -137,6 +154,7 @@ let RoleController = {
             req: req,
             res: res
         });
+        let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         let req_role = req.params.role;
 
@@ -161,10 +179,13 @@ let RoleController = {
         } catch (error) {
             response['error'] = {
                 code: errorCode,
-                trace: error
+                params: []
             }
+            debug['group:delete:error'] = error;
         }
-        Helper.send(response);
+        response['debugTrace'] = debug;
+
+        AppResponse.send(response);
     }
 };
 

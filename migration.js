@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const mysql = require('mysql2');
 const migrations = require('mysql-migrations');
+const { getInstanceUser, getInstancePassword } = require('./helpers/global.helper');
 
 const checkCommand = process.argv.slice(2);
 
@@ -11,12 +12,15 @@ if (checkCommand.length && checkCommand[0] == 'up') {
 
     process.argv.pop();
 
+    const user = getInstanceUser(dbName);
+    const password = getInstancePassword(user);
+
     const connection = mysql.createPool({
         connectionLimit: 10,
         host: process.env.DB_HOST,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: dbName
+        user: user,
+        password: password,
+        database: user
     });
 
     migrations.init(connection, __dirname + '/migrations', () => {
