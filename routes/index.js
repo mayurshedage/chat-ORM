@@ -29,6 +29,7 @@ module.exports = (app, req, res) => {
         }
 
         if (routes.hasOwnProperty(subdomainPrefix) && routePath != '/') {
+            req['requestOwner'] = routes[subdomainPrefix] == 'admin' ? 'API' : 'SDK';
             const currentRoute = routePath.split('/')[2].slice(0, -1);
 
             try {
