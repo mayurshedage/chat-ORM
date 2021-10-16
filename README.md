@@ -5,7 +5,7 @@
 - Prerequisite (Node - latest version, Mysql - 8.0)
 
 1. Clone the repository
-2. Run command `npm install` in same repository
+2. Run command `npm install` in same directory where you clone the repository
 3. Create .env file in project root directory and copy contains from .env.example (do required changes)
 4. To run development server run command `npm run dev`
 
