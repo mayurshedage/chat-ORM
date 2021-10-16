@@ -28,10 +28,14 @@ module.exports = (app, req, res) => {
             req['debug'] = 1;
         }
 
-        if (routes.hasOwnProperty(subdomainPrefix)) {
+        if (routes.hasOwnProperty(subdomainPrefix) && routePath != '/') {
             const currentRoute = routePath.split('/')[2].slice(0, -1);
 
-            require('./' + routePath.split('/')[1] + '/' + routes[subdomainPrefix] + '/' + routes[subdomainPrefix])(app, req, res, currentRoute);
+            try {
+                require('./' + routePath.split('/')[1] + '/' + routes[subdomainPrefix] + '/' + routes[subdomainPrefix])(app, req, res, currentRoute);
+            } catch (error) {
+                throw new Error('Request URL not found');
+            }
         }
     } else {
         throw new Error('Request URL not found');
