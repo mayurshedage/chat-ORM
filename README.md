@@ -1,6 +1,6 @@
 # chat-ORM
 
-# Initial Setup
+### Initial Setup
 
 - Prerequisite (Node - latest version, Mysql - 8.0)
 
@@ -9,7 +9,7 @@
 3. Create .env file in project root directory and copy contains from .env.example (do required changes)
 4. To run development server run command `npm run dev`
 
-# APIs
+### APIs
 
 - /v1.0/apps
 
