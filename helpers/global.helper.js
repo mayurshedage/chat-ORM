@@ -74,9 +74,11 @@ const getSequelizeConnection = (req, res) => {
     return new Sequelize(user, user, password, {
         host: process.env.DB_HOST,
         dialect: "mysql",
-        logging: (query) => {
+        benchmark: true,
+        logging: (query, time) => {
             debugSQL['operator'].push({
-                query: query.replace("Executing (default): ", "")
+                query: query.replace("Executed (default): ", ""),
+                time: `${time}ms`
             });
         }
     });
