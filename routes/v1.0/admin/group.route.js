@@ -25,6 +25,9 @@ module.exports = (app) => {
 
     router
         .route('/:guid')
+        .all(
+            GroupController.checkGroupExists
+        )
         .get(GroupController.findOne)
         .put(
             [
@@ -41,6 +44,9 @@ module.exports = (app) => {
 
     router
         .route('/:guid/members')
+        .all(
+            GroupController.checkGroupExists
+        )
         .get(GroupUserController.findAll)
         .post(
             [
@@ -56,6 +62,10 @@ module.exports = (app) => {
 
     router
         .route('/:guid/members/:uid')
+        .all(
+            GroupController.checkGroupExists,
+            UserController.checkUserExists
+        )
         .get(GroupUserController.findOne)
         .put(
             [
@@ -71,21 +81,25 @@ module.exports = (app) => {
 
     router
         .route('/:guid/bannedusers')
+        .all(
+            GroupController.checkGroupExists
+        )
         .get((req, res, next) => {
             GroupUserController.findAll(req, res, { isBanned: 1 })
         })
 
     router
         .route('/:guid/bannedusers/:uid')
+        .all(
+            GroupController.checkGroupExists,
+            UserController.checkUserExists
+        )
         .post((req, res) => {
             GroupUserController.banUnban('ban', req, res)
         })
         .delete((req, res) => {
             GroupUserController.banUnban('unban', req, res)
         })
-
-    router.param('guid', GroupController.checkGroupExists);
-    router.param('uid', UserController.checkUserExists);
 
     app.use('/v1.0/groups',
         header('apiKey').not().isEmpty(),

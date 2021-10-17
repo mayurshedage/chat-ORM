@@ -1,5 +1,6 @@
 const Success = require('../constants/success.c');
 const Errors = require('../constants/error.c');
+let { debugSQL } = require('./global.helper');
 
 exports.getSuccessMessage = (success) => {
     return Success.get(success);
@@ -58,9 +59,10 @@ exports.send = (response) => {
     }
     if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
         responseData['debug'] = {
-            sql: response['res']['debugSQL'],
+            sql: debugSQL,
             trace: response['debugTrace'] ?? {}
         }
     }
     response['res'].status(responseCode).json(responseData);
+    debugSQL['operator'] = [];
 };

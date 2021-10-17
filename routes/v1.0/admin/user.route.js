@@ -22,6 +22,7 @@ module.exports = (app) => {
 
     router
         .route('/:uid')
+        .all(UserController.checkUserExists)
         .get(UserController.findOne)
         .put(
             body('name').optional().not().isEmpty(),
@@ -44,6 +45,7 @@ module.exports = (app) => {
 
     router
         .route('/:uid/friends')
+        .all(UserController.checkUserExists)
         .get(FriendController.findAll)
         .post(
             [
@@ -76,6 +78,7 @@ module.exports = (app) => {
 
     router
         .route('/:uid/blockedusers')
+        .all(UserController.checkUserExists)
         .get(BlockedUserController.findAll)
         .post(
             [
@@ -91,8 +94,6 @@ module.exports = (app) => {
             validator.showError,
             BlockedUserController.unblock
         )
-
-    router.param('uid', UserController.checkUserExists);
 
     app.use('/v1.0/users',
         header('apiKey').not().isEmpty(),
