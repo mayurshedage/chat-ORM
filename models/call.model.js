@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const Call = sequelize.define('call', {
         sessionid: {
             type: DataTypes.STRING(50),

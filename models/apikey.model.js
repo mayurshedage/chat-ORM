@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const APIKey = sequelize.define('apikey', {
         apiKey: {
             type: DataTypes.STRING(100),

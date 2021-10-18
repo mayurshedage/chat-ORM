@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const Setting = sequelize.define('setting', {
         key: {
             type: DataTypes.STRING(100),

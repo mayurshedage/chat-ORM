@@ -1,5 +1,7 @@
 exports.get = (success) => {
-    const successMessages = (params) => {
+    const successMessages = (
+        params = []
+    ) => {
         return {
             'OK_DEFAULT': {
                 message: 'Operation is successful.'

@@ -10,7 +10,9 @@ exports.getErrorMessage = (error) => {
     return Errors.get(error);
 };
 
-exports.send = (response) => {
+exports.send = (
+    response = {}
+) => {
     let responseData = {};
     let responseCode = 200;
 

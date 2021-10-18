@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const BlockedUser = sequelize.define('blocked_user', {
         uid: {
             type: DataTypes.STRING(100),

@@ -1,7 +1,9 @@
 const HttpResponse = require('./httpcode.c');
 
 exports.get = (error) => {
-    const errorMessages = (params = []) => {
+    const errorMessages = (
+        params = []
+    ) => {
         return {
             'ERR_BAD_REGION_SECRET': {
                 message: `Incorrect region secret.`,
@@ -71,9 +73,9 @@ exports.get = (error) => {
     }
     if (error.hasOwnProperty('code')) {
         if (!error.hasOwnProperty('params')) {
-            error.params = [];
+            error['params'] = [];
         }
-        return errorMessages(error.params)[error.code];
+        return errorMessages(error['params'])[error['code']];
     }
     return errorMessages()['ERR_BAD_ERROR_RESPONSE'];
 }
