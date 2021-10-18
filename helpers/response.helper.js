@@ -36,18 +36,6 @@ exports.send = (response) => {
             code: error['code'],
             message: processError['message']
         }
-        if (error.hasOwnProperty('trace')) {
-            let trace = error['trace'];
-
-            [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
-                if (trace instanceof e) {
-                    errorResponse['debug'] = {
-                        trace: trace['stack']
-                    };
-                    errorResponse['devMessage'] = trace['message'];
-                }
-            });
-        }
         responseData['error'] = errorResponse;
     } else {
         let processError = this.getErrorMessage([]);
@@ -57,10 +45,19 @@ exports.send = (response) => {
             message: processError['message']
         }
     }
+
     if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
+        let trace = Object.values(response['debugTrace']);
+        let traceStack = false;
+
+        [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
+            if (trace[0] instanceof e) {
+                traceStack = trace[0]['stack']
+            }
+        });
         responseData['debug'] = {
             sql: debugSQL,
-            trace: response['debugTrace'] ?? {}
+            trace: traceStack ?? response['debugTrace'] ?? {}
         }
     }
     response['res'].status(responseCode).json(responseData);

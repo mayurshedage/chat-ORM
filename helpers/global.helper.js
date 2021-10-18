@@ -12,7 +12,7 @@ const { Sequelize, Model } = require('sequelize');
 const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
 
-let db = {};
+let db;
 let debugSQL = {
     operator: []
 };
@@ -73,6 +73,7 @@ const getSequelizeConnection = (req, res) => {
 
     return new Sequelize(user, user, password, {
         host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
         dialect: "mysql",
         benchmark: true,
         logging: (query, time) => {
@@ -85,6 +86,8 @@ const getSequelizeConnection = (req, res) => {
 };
 
 const configureModels = (sequelize) => {
+    db = new Object();
+
     fs
         .readdirSync(modelsDir)
         .filter(file => {
