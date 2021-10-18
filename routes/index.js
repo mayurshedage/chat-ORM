@@ -24,11 +24,17 @@ module.exports = (app, req, res) => {
             chat: 'admin',
             chatclient: 'sdk'
         }
-        if (req.query.debug && req.query.debug == process.env.DEBUG_HASH) {
+        if (
+            req.query.debug &&
+            req.query.debug == process.env.DEBUG_HASH
+        ) {
             req['debug'] = 1;
         }
 
-        if (routes.hasOwnProperty(subdomainPrefix) && routePath != '/') {
+        if (
+            routes.hasOwnProperty(subdomainPrefix) &&
+            routePath != '/'
+        ) {
             req['requestOwner'] = routes[subdomainPrefix] == 'admin' ? 'API' : 'SDK';
             const currentRoute = routePath.split('/')[2].slice(0, -1);
 

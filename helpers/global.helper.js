@@ -97,7 +97,9 @@ const getSequelizeConnection = (
     });
 };
 
-const configureModels = (sequelize) => {
+const configureModels = (
+    sequelize
+) => {
     db = new Object();
 
     fs
@@ -122,7 +124,9 @@ const configureModels = (sequelize) => {
     dbModels['onDemandDB'] = db;
 }
 
-const configureCurrentInstance = async (req, res, callback) => {
+const configureCurrentInstance = async (
+    req, res, callback
+) => {
     let sequelize = getSequelizeConnection(req, res);
     configureModels(sequelize);
 

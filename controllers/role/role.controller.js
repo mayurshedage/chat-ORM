@@ -90,7 +90,10 @@ let RoleController = {
 
             if (role) response['data'] = removeEmptyValues(role);
         } catch (error) {
-            if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
+            if (
+                error.hasOwnProperty('name') &&
+                error.name == 'SequelizeUniqueConstraintError'
+            ) {
                 response['error'] = {
                     code: 'ERR_ROLE_ALREADY_EXISTS',
                     params: {

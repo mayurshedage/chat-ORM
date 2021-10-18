@@ -17,7 +17,9 @@ exports.send = (
     let responseCode = 200;
 
     if (response.hasOwnProperty('data')) {
-        if (response['data'].hasOwnProperty('code')) {
+        if (
+            response['data'].hasOwnProperty('code')
+        ) {
             let processSuccess = this.getSuccessMessage(response['data']);
 
             responseData['data'] = {
@@ -48,12 +50,18 @@ exports.send = (
         }
     }
 
-    if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
+    if (
+        response['req'].hasOwnProperty('debug') &&
+        response['req']['debug'] == 1
+    ) {
         let trace = Object.values(response['debugTrace']);
         let traceStack = false;
 
         [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
-            if (trace[0] instanceof e) {
+            if (
+                trace &&
+                trace[0] instanceof e
+            ) {
                 traceStack = trace[0]['stack']
             }
         });

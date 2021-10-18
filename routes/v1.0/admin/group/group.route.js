@@ -16,7 +16,11 @@ module.exports = (app) => {
             body('guid').not().isEmpty(),
             body('name').not().isEmpty(),
             body('type').not().isEmpty().custom(value => {
-                if (['public', 'private', 'password'].indexOf(value) == -1) throw new Error('Invalid type');
+                if (
+                    ['public', 'private', 'password'].indexOf(value) == -1
+                ) {
+                    throw new Error('Invalid type')
+                };
                 return true;
             })
         ],
@@ -26,15 +30,17 @@ module.exports = (app) => {
 
     router
         .route('/:guid')
-        .all(
-            GroupController.checkGroupExists
-        )
+        .all(GroupController.checkGroupExists)
         .get(GroupController.findOne)
         .put(
             [
                 body('name').optional().not().isEmpty(),
                 body('type').optional().not().isEmpty().custom(value => {
-                    if (['public', 'private', 'password'].indexOf(value) == -1) throw new Error('Invalid type');
+                    if (
+                        ['public', 'private', 'password'].indexOf(value) == -1
+                    ) {
+                        throw new Error('Invalid type')
+                    };
                     return true;
                 })
             ],

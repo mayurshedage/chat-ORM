@@ -5,7 +5,7 @@ module.exports = async (app, req, res, currentRoute) => {
     let response = new Object();
     let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
-    const adminRoutes = ['apikey', 'group', 'role', 'user'];
+    const adminRoutes = ['role', 'user', 'group', 'apikey'];
 
     if (adminRoutes.indexOf(currentRoute) != -1) {
         try {

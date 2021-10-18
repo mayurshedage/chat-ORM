@@ -9,9 +9,7 @@ const router = express.Router();
 
 router
     .route('/:guid/members')
-    .all(
-        GroupController.checkGroupExists
-    )
+    .all(GroupController.checkGroupExists)
     .get(GroupUserController.findAll)
     .post(
         [
@@ -35,7 +33,11 @@ router
     .put(
         [
             body('scope').not().isEmpty().custom(value => {
-                if (['admin', 'participant', 'moderator'].indexOf(value) == -1) throw new Error('Invalid scope');
+                if (
+                    ['admin', 'participant', 'moderator'].indexOf(value) == -1
+                ) {
+                    throw new Error('Invalid scope')
+                };
                 return true;
             })
         ],

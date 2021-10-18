@@ -102,7 +102,10 @@ let GroupUserController = {
                 await GroupService.update(req_guid, { membersCount: groups.length });
             }
         } catch (error) {
-            if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
+            if (
+                error.hasOwnProperty('name') &&
+                error.name == 'SequelizeUniqueConstraintError'
+            ) {
                 response['error'] = {
                     code: 'ERR_ALREADY_JOINED',
                     params: {
@@ -137,7 +140,10 @@ let GroupUserController = {
         try {
             let result = await GroupUserService.update(req_guid, req_uid, groupUserToUpdate);
 
-            if (result && result[0] == 1) {
+            if (
+                result &&
+                result[0] == 1
+            ) {
                 let group_user = await GroupUserService.findOne(req_guid, req_uid);
 
                 response['data'] = removeEmptyValues(group_user);
