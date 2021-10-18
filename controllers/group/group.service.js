@@ -10,6 +10,7 @@ let GroupService = {
 
     findAll: async (req) => {
         let tags = [];
+        let tagsFilter = false;
         let whereClauseGroup = {};
         let whereClauseGroupTag = {};
 
@@ -25,19 +26,23 @@ let GroupService = {
                 });
                 whereClauseGroupTag[Op.or] = tags;
             }
+            tagsFilter = true;
         }
 
         return new Promise(function (resolve, reject) {
-            GroupModel.findAll({
+            let condition = {
                 where: whereClauseGroup,
-                include: {
+                attributes: { exclude: excludeColumns },
+                raw: true
+            };
+            if (tagsFilter) {
+                condition['include'] = {
                     model: GroupTagModel,
                     where: whereClauseGroupTag,
                     attributes: { exclude: excludeColumnsGroupTag }
-                },
-                attributes: { exclude: excludeColumns },
-                raw: true
-            })
+                }
+            }
+            GroupModel.findAll(condition)
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
