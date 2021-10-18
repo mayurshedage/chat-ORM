@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, header } = require('express-validator');
-const validator = require('../../../middlewares/validator.mw');
-const RoleController = require('../../../controllers/role/role.controller');
+const validator = require('../../../../middlewares/validator.mw');
+const RoleController = require('../../../../controllers/role/role.controller');
 
 const router = express.Router();
 

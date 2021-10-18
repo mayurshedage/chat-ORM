@@ -12,7 +12,10 @@ const { Sequelize, Model } = require('sequelize');
 const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
 
-module.exports = db = {};
+let db = {};
+let debugSQL = {
+    operator: []
+};
 
 const removeEmptyValues = (obj) => {
     Object.keys(obj).forEach((key) => (obj[key] === undefined || obj[key] === null) && delete obj[key]);
@@ -68,16 +71,14 @@ const getSequelizeConnection = (req, res) => {
     const user = getInstanceUser(appId);
     const password = getInstancePassword(user);
 
-    res['debugSQL'] = {
-        operator: []
-    };
-
     return new Sequelize(user, user, password, {
         host: process.env.DB_HOST,
         dialect: "mysql",
-        logging: (query) => {
-            res['debugSQL']['operator'].push({
-                query: query.replace("Executing (default): ", "")
+        benchmark: true,
+        logging: (query, time) => {
+            debugSQL['operator'].push({
+                query: query.replace("Executed (default): ", ""),
+                time: `${time}ms`
             });
         }
     });
@@ -139,6 +140,7 @@ const migrate = async (req, res) => {
 }
 
 module.exports = {
+    debugSQL,
     migrate,
     getAppId,
     getAppPrefix,

@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, header } = require('express-validator');
-const validator = require('../../../middlewares/validator.mw');
-const APIKeyController = require('../../../controllers/apikey/apikey.controller');
+const validator = require('../../../../middlewares/validator.mw');
+const APIKeyController = require('../../../../controllers/apikey/apikey.controller');
 
 const router = express.Router();
 

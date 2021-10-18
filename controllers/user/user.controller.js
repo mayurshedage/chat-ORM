@@ -200,7 +200,7 @@ let UserController = {
             let user = await UserService.findOne(uid);
 
             if (user) {
-                next(); return;
+                return next();
             } else {
                 response['error'] = {
                     code: 'ERR_UID_NOT_FOUND',
@@ -214,7 +214,7 @@ let UserController = {
                 code: errorCode,
                 params: []
             }
-            debug['mw:user:checkUserExists:error'] = error;
+            debug['mw:user:checkUserExists:error'] = error.message;
         }
         response['debugTrace'] = debug;
 

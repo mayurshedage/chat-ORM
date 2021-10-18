@@ -10,7 +10,7 @@ module.exports = async (app, req, res, currentRoute) => {
     if (adminRoutes.indexOf(currentRoute) != -1) {
         try {
             await configureCurrentInstance(req, res, () => {
-                require('./' + currentRoute + '.route')(app)
+                require('./' + currentRoute + '/' + currentRoute + '.route')(app)
             });
         } catch (error) {
             response['error'] = {
