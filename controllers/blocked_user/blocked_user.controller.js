@@ -148,7 +148,10 @@ const blockedUserManager = async (blockedUids, req) => {
         for (let i = 0; i < blockedUids.length; i++) {
             let blockedUid = blockedUids[i];
 
-            if (users[i] && users[i].hasOwnProperty('uid')) {
+            if (
+                users[i] &&
+                users[i].hasOwnProperty('uid')
+            ) {
                 if (blockedUid == req_uid) {
                     response[blockedUid] = {
                         "success": false,
@@ -162,7 +165,11 @@ const blockedUserManager = async (blockedUids, req) => {
                     }
                 } else {
                     try {
-                        await BlockedUserService.create({ uid: req.params.uid, blockedUid: blockedUid, blockedAt: Math.floor(+new Date() / 1000) });
+                        await BlockedUserService.create({
+                            uid: req_uid,
+                            blockedUid: blockedUid,
+                            blockedAt: Math.floor(+new Date() / 1000)
+                        });
 
                         response[blockedUid] = {
                             "success": true,
@@ -175,7 +182,10 @@ const blockedUserManager = async (blockedUids, req) => {
                             })['message']
                         }
                     } catch (error) {
-                        if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
+                        if (
+                            error.hasOwnProperty('name') &&
+                            error.name == 'SequelizeUniqueConstraintError'
+                        ) {
                             response[blockedUid] = {
                                 "success": true,
                                 "message": AppResponse.getSuccessMessage({

@@ -1,7 +1,9 @@
 const HttpResponse = require('./httpcode.c');
 
 exports.get = (error) => {
-    const errorMessages = (params = []) => {
+    const errorMessages = (
+        params = []
+    ) => {
         return {
             'ERR_BAD_REGION_SECRET': {
                 message: `Incorrect region secret.`,
@@ -67,13 +69,21 @@ exports.get = (error) => {
                 message: `The user with uid ${params['uid']}has already joined the group with guid ${params['guid']}.`,
                 responseCode: HttpResponse.HTTP_EXPECTATION_FAILED
             },
+            'ERR_CALL_SESSION_NOT_FOUND': {
+                message: `Call session with sessionid ${params['sessionid']} does not exist.`,
+                responseCode: HttpResponse.HTTP_NOT_FOUND
+            },
+            'ERR_CALLING_SELF': {
+                message: `Initiator of a call cannot call himself.`,
+                responseCode: HttpResponse.HTTP_BAD_REQUEST
+            },
         }
     }
     if (error.hasOwnProperty('code')) {
         if (!error.hasOwnProperty('params')) {
-            error.params = [];
+            error['params'] = [];
         }
-        return errorMessages(error.params)[error.code];
+        return errorMessages(error['params'])[error['code']];
     }
     return errorMessages()['ERR_BAD_ERROR_RESPONSE'];
 }

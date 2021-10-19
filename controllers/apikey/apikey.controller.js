@@ -200,7 +200,10 @@ let APIKeyController = {
                     }
                 }
             } else {
-                if (apikey.hasOwnProperty('scope') && apikey['scope'] === 'fullAccess') {
+                if (
+                    apikey.hasOwnProperty('scope') &&
+                    apikey['scope'] === 'fullAccess'
+                ) {
                     next(); return;
                 } else {
                     response['error'] = {

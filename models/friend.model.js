@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const Friend = sequelize.define('friend', {
         uid: {
             type: DataTypes.STRING(100),

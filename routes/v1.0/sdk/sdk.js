@@ -5,9 +5,9 @@ module.exports = async (app, req, res, currentRoute) => {
     let response = new Object();
     let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
-    const adminRoutes = ['role', 'user', 'group', 'apikey'];
+    const sdkRoutes = ['user', 'group', 'call'];
 
-    if (adminRoutes.indexOf(currentRoute) != -1) {
+    if (sdkRoutes.indexOf(currentRoute) != -1) {
         try {
             await configureCurrentInstance(req, res, () => {
                 require('./' + currentRoute + '/' + currentRoute + '.route')(app)

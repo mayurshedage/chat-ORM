@@ -12,7 +12,6 @@ let AppController = {
         });
         let debug = new Object();
         let proceed = true;
-        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
 
         if (proceed) {
             try {
@@ -99,7 +98,8 @@ let AppController = {
         };
 
         if (
-            regionSecret && regionSecret == Helper.getRegionSecret()
+            regionSecret &&
+            regionSecret == Helper.getRegionSecret()
         ) {
             return next();
         }

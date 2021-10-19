@@ -111,7 +111,10 @@ let GroupController = {
                 if (group) {
                     response['data'] = removeEmptyValues(group);
                 }
-                if (req.body.tags && req.body.tags.length) {
+                if (
+                    req.body.tags &&
+                    req.body.tags.length
+                ) {
                     req.body.tags.map(tag => {
                         return tags.push({ guid: group.guid, tag: tag, addedAt: addedAt });
                     });
@@ -144,9 +147,9 @@ let GroupController = {
             req: req,
             res: res
         });
+        let tags = [];
         let debug = new Object();
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
-        let tags = [];
         let proceed = true;
         let guid = req.params.guid;
         let groupToUpdate = req.body;
@@ -177,7 +180,10 @@ let GroupController = {
 
                     response['data'] = removeEmptyValues(group);
 
-                    if (req.body.tags && req.body.tags.length) {
+                    if (
+                        req.body.tags &&
+                        req.body.tags.length
+                    ) {
                         req.body.tags.map(tag => {
                             return tags.push({ guid: group.guid, tag: tag, addedAt: addedAt });
                         });

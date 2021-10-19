@@ -12,18 +12,40 @@ const { Sequelize, Model } = require('sequelize');
 const dbModels = require('../models');
 const modelsDir = path.join(__dirname, '../models');
 
-let db = {};
+let db;
 let debugSQL = {
     operator: []
 };
 
-const removeEmptyValues = (obj) => {
+const removeEmptyValues = (
+    obj = {}
+) => {
     Object.keys(obj).forEach((key) => (obj[key] === undefined || obj[key] === null) && delete obj[key]);
     return obj;
 };
 
-const getCryptoHash = () => {
-    return crypto.createHash('sha1').update(crypto.randomBytes(64).toString('hex')).digest('hex');
+const getCryptoHash = (
+    method = 'sha1',
+    update = crypto.randomBytes(64).toString('hex')
+) => {
+    return crypto.createHash(method).update(update).digest('hex');
+};
+
+const getUid = (req) => {
+    let uid = null;
+
+    if (req.hasOwnProperty('subjectUser')) {
+        uid = req['subjectUser'] ?? uid;
+    }
+    return uid;
+};
+
+const getCurrentTime = () => {
+    return Math.floor(Date.now() / 1000);
+}
+
+const generateSessionId = (calldata) => {
+    return getCurrentTime() + getCryptoHash('sha1', Object.values(calldata).join('_'));
 };
 
 const getAppPrefix = () => {
@@ -47,13 +69,18 @@ const getAppId = (req) => {
     return appId;
 };
 
-const getInstanceUser = (appId) => {
-    return getAppPrefix() + appId;
+const getInstanceUser = (
+    appId = ''
+) => {
+    return appId ? getAppPrefix() + appId : appId;
 };
 
-const getInstancePassword = (user) => {
+const getInstancePassword = (
+    user = ''
+) => {
     const salt = process.env.DB_PASS_SALT;
-    return crypto.createHash('md5').update(user + salt).digest('hex');
+
+    return getCryptoHash('md5', (user + salt));
 };
 
 const getRegionSecret = () => {
@@ -66,13 +93,16 @@ const getCreatorConnection = async () => {
     return await mysql.createConnection({ host, port, user, password });
 };
 
-const getSequelizeConnection = (req, res) => {
+const getSequelizeConnection = (
+    req, res
+) => {
     const appId = getAppId(req);
     const user = getInstanceUser(appId);
     const password = getInstancePassword(user);
 
     return new Sequelize(user, user, password, {
         host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
         dialect: "mysql",
         benchmark: true,
         logging: (query, time) => {
@@ -84,7 +114,11 @@ const getSequelizeConnection = (req, res) => {
     });
 };
 
-const configureModels = (sequelize) => {
+const configureModels = (
+    sequelize
+) => {
+    db = new Object();
+
     fs
         .readdirSync(modelsDir)
         .filter(file => {
@@ -107,14 +141,18 @@ const configureModels = (sequelize) => {
     dbModels['onDemandDB'] = db;
 }
 
-const configureCurrentInstance = async (req, res, callback) => {
+const configureCurrentInstance = async (
+    req, res, callback
+) => {
     let sequelize = getSequelizeConnection(req, res);
     configureModels(sequelize);
 
     if (callback) callback();
 };
 
-const migrate = async (req, res) => {
+const migrate = async (
+    req, res
+) => {
     const appId = getAppId(req);
     const sequelize = getSequelizeConnection(req, res);
 
@@ -141,12 +179,15 @@ const migrate = async (req, res) => {
 
 module.exports = {
     debugSQL,
+    getUid,
     migrate,
     getAppId,
     getAppPrefix,
     getCryptoHash,
+    getCurrentTime,
     getInstanceUser,
     getRegionSecret,
+    generateSessionId,
     removeEmptyValues,
     getInstancePassword,
     getCreatorConnection,

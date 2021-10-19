@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const Group = sequelize.define('group', {
         guid: {
             type: DataTypes.STRING(100),

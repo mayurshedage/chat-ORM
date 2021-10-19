@@ -2,7 +2,10 @@
 
 const AppResponse = require('../../helpers/response.helper');
 const AuthTokenService = require('./auth_token.service');
-const { getCryptoHash, removeEmptyValues } = require('../../helpers/global.helper');
+const {
+    getCryptoHash,
+    removeEmptyValues
+} = require('../../helpers/global.helper');
 
 let AuthTokenController = {
 
@@ -119,7 +122,10 @@ let AuthTokenController = {
         try {
             let result = await AuthTokenService.update(req_auth_token, tokenToUpdate);
 
-            if (result && result[0] == 1) {
+            if (
+                result &&
+                result[0] == 1
+            ) {
                 let auth_token = await AuthTokenService.findOne(req_auth_token);
 
                 response['data'] = removeEmptyValues(auth_token);
@@ -176,40 +182,6 @@ let AuthTokenController = {
                 params: []
             }
             debug['auth:delete:error'] = error;
-        }
-        response['debugTrace'] = debug;
-
-        AppResponse.send(response);
-    },
-
-    validate: async (req, res, next) => {
-        let response = new Object({
-            req: req,
-            res: res
-        });
-        let debug = new Object();
-        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
-        let authToken = req.headers['authtoken'];
-
-        try {
-            let auth_token = await AuthTokenService.findOne(authToken);
-
-            if (auth_token) {
-                next(); return;
-            } else {
-                response['error'] = {
-                    code: 'AUTH_ERR_AUTH_TOKEN_NOT_FOUND',
-                    params: {
-                        auth_token: req_auth_token
-                    }
-                }
-            }
-        } catch (error) {
-            response['error'] = {
-                code: errorCode,
-                params: []
-            }
-            debug['auth:validate:error'] = error;
         }
         response['debugTrace'] = debug;
 

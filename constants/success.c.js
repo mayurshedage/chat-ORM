@@ -1,5 +1,7 @@
 exports.get = (success) => {
-    const successMessages = (params) => {
+    const successMessages = (
+        params = []
+    ) => {
         return {
             'OK_DEFAULT': {
                 message: 'Operation is successful.'
@@ -51,6 +53,9 @@ exports.get = (success) => {
             },
             'OK_UNBANNED_USER_FROM_GROUP': {
                 message: `The user with uid ${params['uid']} has been unbanned from the Group ${params['guid']}.`
+            },
+            'OK_CALL_SESSION_DELETED': {
+                message: `The call with sessionid ${params['sessionid']} has been deleted successfully.`
             },
         }
     }

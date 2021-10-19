@@ -10,12 +10,16 @@ exports.getErrorMessage = (error) => {
     return Errors.get(error);
 };
 
-exports.send = (response) => {
+exports.send = (
+    response = {}
+) => {
     let responseData = {};
     let responseCode = 200;
 
     if (response.hasOwnProperty('data')) {
-        if (response['data'].hasOwnProperty('code')) {
+        if (
+            response['data'].hasOwnProperty('code')
+        ) {
             let processSuccess = this.getSuccessMessage(response['data']);
 
             responseData['data'] = {
@@ -36,18 +40,6 @@ exports.send = (response) => {
             code: error['code'],
             message: processError['message']
         }
-        if (error.hasOwnProperty('trace')) {
-            let trace = error['trace'];
-
-            [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
-                if (trace instanceof e) {
-                    errorResponse['debug'] = {
-                        trace: trace['stack']
-                    };
-                    errorResponse['devMessage'] = trace['message'];
-                }
-            });
-        }
         responseData['error'] = errorResponse;
     } else {
         let processError = this.getErrorMessage([]);
@@ -57,10 +49,25 @@ exports.send = (response) => {
             message: processError['message']
         }
     }
-    if (response['req'].hasOwnProperty('debug') && response['req']['debug'] == 1) {
+
+    if (
+        response['req'].hasOwnProperty('debug') &&
+        response['req']['debug'] == 1
+    ) {
+        let trace = Object.values(response['debugTrace']);
+        let traceStack = false;
+
+        [ReferenceError, SyntaxError, TypeError, Error].forEach(e => {
+            if (
+                trace &&
+                trace[0] instanceof e
+            ) {
+                traceStack = trace[0]['stack']
+            }
+        });
         responseData['debug'] = {
             sql: debugSQL,
-            trace: response['debugTrace'] ?? {}
+            trace: traceStack ?? response['debugTrace'] ?? {}
         }
     }
     response['res'].status(responseCode).json(responseData);

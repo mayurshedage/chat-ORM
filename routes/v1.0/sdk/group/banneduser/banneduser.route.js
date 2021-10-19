@@ -7,8 +7,10 @@ const router = express.Router();
 
 router
     .route('/:guid/bannedusers')
-    .all(GroupController.checkGroupExists)
-    .get((req, res) => {
+    .all(
+        GroupController.checkGroupExists
+    )
+    .get((req, res, next) => {
         GroupUserController.findAll(req, res, { isBanned: 1 })
     })
 

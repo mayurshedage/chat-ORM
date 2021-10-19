@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (
+    sequelize, DataTypes
+) => {
     const Message = sequelize.define('message', {
         id: {
             type: DataTypes.BIGINT,

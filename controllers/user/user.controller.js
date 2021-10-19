@@ -89,7 +89,10 @@ let UserController = {
 
             if (user) response['data'] = removeEmptyValues(user);
         } catch (error) {
-            if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
+            if (
+                error.hasOwnProperty('name') &&
+                error.name == 'SequelizeUniqueConstraintError'
+            ) {
                 response['error'] = {
                     code: 'ERR_UID_ALREADY_EXISTS',
                     params: {
@@ -124,7 +127,10 @@ let UserController = {
         try {
             let result = await UserService.update(uid, userToUpdate);
 
-            if (result && result[0] == 1) {
+            if (
+                result &&
+                result[0] == 1
+            ) {
                 let user = await UserService.findOne(uid);
 
                 response['data'] = removeEmptyValues(user);

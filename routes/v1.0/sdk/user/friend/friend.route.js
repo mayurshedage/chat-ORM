@@ -14,25 +14,14 @@ router
         [
             body().not().isEmpty().custom(body => {
                 let validStatus = 0;
-                if (
-                    Object.keys(body).length == 0
-                ) {
-                    return false
-                };
+                if (Object.keys(body).length == 0) return false;
 
                 Object.keys(body).forEach(key => {
-                    if (
-                        ['accepted', 'pending', 'blocked'].indexOf(key) !== -1
-                    ) {
-                        validStatus++;
-                    };
+                    if (['accepted', 'pending', 'blocked'].indexOf(key) !== -1) validStatus++;
                 });
 
-                if (
-                    !validStatus
-                ) {
-                    throw new Error('Atleast one of the valid body param needs to be present.');
-                }
+                if (!validStatus) throw new Error('Atleast one of the valid body param needs to be present.');
+
                 return true;
             }),
             body('accepted').optional().not().isEmpty(),

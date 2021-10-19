@@ -24,13 +24,15 @@ let FriendController = {
             } else {
                 let filteredFriends = [];
 
-                friends.forEach(row => {
-                    filteredFriends.push(
-                        removeEmptyValues(
-                            JSON.parse(JSON.stringify(row.user))
-                        )
-                    );
-                });
+                friends.forEach(
+                    row => {
+                        filteredFriends.push(
+                            removeEmptyValues(
+                                JSON.parse(JSON.stringify(row.user))
+                            )
+                        );
+                    }
+                );
                 response['data'] = filteredFriends;
             }
         } catch (error) {
@@ -114,7 +116,10 @@ const friendsManager = async (friendsToAdd, status, req) => {
         for (let i = 0; i < friendsToAdd.length; i++) {
             let uid = friendsToAdd[i];
 
-            if (users[i] && users[i].hasOwnProperty('uid')) {
+            if (
+                users[i] &&
+                users[i].hasOwnProperty('uid')
+            ) {
                 if (uid == req.params.uid) {
                     response[uid] = {
                         "success": false,
@@ -124,7 +129,12 @@ const friendsManager = async (friendsToAdd, status, req) => {
                     }
                 } else {
                     try {
-                        await FriendService.create({ uid: req.params.uid, fuid: uid, status: status, createdAt: Math.floor(+new Date() / 1000) });
+                        await FriendService.create({
+                            uid: req.params.uid,
+                            fuid: uid,
+                            status: status,
+                            createdAt: Math.floor(+new Date() / 1000)
+                        });
 
                         response[uid] = {
                             "success": true,
@@ -137,10 +147,13 @@ const friendsManager = async (friendsToAdd, status, req) => {
                         }
                     } catch (error) {
                         if (error.hasOwnProperty('name') && error.name == 'SequelizeUniqueConstraintError') {
-                            await FriendService.update(req.params.uid, uid, {
-                                status: status,
-                                updatedAt: Math.floor(+new Date() / 1000)
-                            });
+                            await FriendService.update(
+                                req.params.uid, uid,
+                                {
+                                    status: status,
+                                    updatedAt: Math.floor(+new Date() / 1000)
+                                }
+                            );
 
                             response[uid] = {
                                 "success": true,
