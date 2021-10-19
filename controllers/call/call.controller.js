@@ -4,7 +4,7 @@ const CallService = require('./call.service');
 const UserService = require('../user/user.service');
 const GroupService = require('../group/group.service');
 const AppResponse = require('../../helpers/response.helper');
-const { getConversationId } = require('../../core/conversation.core');
+const { getConversationId } = require('../../interiors/conversation.int');
 const { getUid, generateSessionId, removeEmptyValues } = require('../../helpers/global.helper');
 
 let CallController = {
