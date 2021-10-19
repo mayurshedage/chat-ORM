@@ -31,6 +31,23 @@ const getCryptoHash = (
     return crypto.createHash(method).update(update).digest('hex');
 };
 
+const getUid = (req) => {
+    let uid = null;
+
+    if (req.hasOwnProperty('subjectUser')) {
+        uid = req['subjectUser'] ?? uid;
+    }
+    return uid;
+};
+
+const getCurrentTime = () => {
+    return Math.floor(Date.now() / 1000);
+}
+
+const generateSessionId = (calldata) => {
+    return getCurrentTime() + getCryptoHash('sha1', Object.values(calldata).join('_'));
+};
+
 const getAppPrefix = () => {
     return process.env.APP_PREFIX;
 };
@@ -162,12 +179,15 @@ const migrate = async (
 
 module.exports = {
     debugSQL,
+    getUid,
     migrate,
     getAppId,
     getAppPrefix,
     getCryptoHash,
+    getCurrentTime,
     getInstanceUser,
     getRegionSecret,
+    generateSessionId,
     removeEmptyValues,
     getInstancePassword,
     getCreatorConnection,

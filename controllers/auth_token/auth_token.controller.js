@@ -186,40 +186,6 @@ let AuthTokenController = {
         response['debugTrace'] = debug;
 
         AppResponse.send(response);
-    },
-
-    validate: async (req, res, next) => {
-        let response = new Object({
-            req: req,
-            res: res
-        });
-        let debug = new Object();
-        let errorCode = 'ERR_BAD_ERROR_RESPONSE';
-        let authToken = req.headers['authtoken'];
-
-        try {
-            let auth_token = await AuthTokenService.findOne(authToken);
-
-            if (auth_token) {
-                return next();
-            } else {
-                response['error'] = {
-                    code: 'AUTH_ERR_AUTH_TOKEN_NOT_FOUND',
-                    params: {
-                        auth_token: req_auth_token
-                    }
-                }
-            }
-        } catch (error) {
-            response['error'] = {
-                code: errorCode,
-                params: []
-            }
-            debug['auth:validate:error'] = error;
-        }
-        response['debugTrace'] = debug;
-
-        AppResponse.send(response);
     }
 };
 
