@@ -82,32 +82,6 @@ let AppController = {
         response['debugTrace'] = debug;
 
         AppResponse.send(response);
-    },
-
-    checkRegionSecret: async (req, res, next) => {
-        let response = new Object({
-            req: req,
-            res: res
-        });
-        let debug = new Object();
-        let regionSecret = req.headers.apikey;
-
-        let errorCode = 'ERR_BAD_REGION_SECRET';
-        let errorParams = {
-            secret: regionSecret
-        };
-
-        if (
-            regionSecret &&
-            regionSecret == Helper.getRegionSecret()
-        ) {
-            return next();
-        }
-        response['error'] = {
-            code: errorCode,
-            params: errorParams
-        }
-        AppResponse.send(response);
     }
 };
 
