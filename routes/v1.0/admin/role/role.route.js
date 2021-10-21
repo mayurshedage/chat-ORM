@@ -31,7 +31,7 @@ module.exports = (app) => {
         )
         .delete(RoleController.delete);
 
-    app.use('/v1.0/roles',
+    app.use('/v1.0/admin/roles',
         header('apiKey').not().isEmpty(),
         validator.showError,
         APIKeyMiddleware.checkAPIKey,

@@ -34,7 +34,7 @@ module.exports = (app) => {
         )
         .delete(UserController.delete);
 
-    app.use('/v1.0/users',
+    app.use('/v1.0/admin/users',
         header('apiKey').not().isEmpty(),
         validator.showError,
         APIKeyMiddleware.checkAPIKey,

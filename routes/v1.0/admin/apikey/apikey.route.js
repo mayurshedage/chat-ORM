@@ -32,7 +32,7 @@ module.exports = (app) => {
         )
         .delete(APIKeyController.delete);
 
-    app.use('/v1.0/apikeys',
+    app.use('/v1.0/admin/apikeys',
         header('apiKey').not().isEmpty(),
         validator.showError,
         APIKeyMiddleware.checkAPIKey,

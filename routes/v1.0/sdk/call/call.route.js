@@ -45,7 +45,7 @@ module.exports = (app) => {
         )
         .delete(CallController.delete);
 
-    app.use('/v1.0/calls',
+    app.use('/v1.0/sdk/calls',
         header('apiKey').not().isEmpty(),
         validator.showError,
         AuthTokenMiddleware.checkAuthToken,

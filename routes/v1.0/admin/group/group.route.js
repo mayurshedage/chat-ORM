@@ -51,7 +51,7 @@ module.exports = (app) => {
         )
         .delete(GroupController.delete);
 
-    app.use('/v1.0/groups',
+    app.use('/v1.0/admin/groups',
         header('apiKey').not().isEmpty(),
         validator.showError,
         APIKeyMiddleware.checkAPIKey,
