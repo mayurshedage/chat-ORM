@@ -14,7 +14,7 @@ app.use(express.urlencoded({
 
 app.use(async (req, res, next) => {
     try {
-        require('./routes/index')(app, req, res);
+        require('./routes/index')(app);
         next();
     } catch (error) {
         res.status(404).send('Request URL not found');

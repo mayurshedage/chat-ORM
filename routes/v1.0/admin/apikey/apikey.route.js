@@ -1,6 +1,9 @@
 const express = require('express');
 const { body, header } = require('express-validator');
+
 const validator = require('../../../../middlewares/validator.mw');
+const APIKeyMiddleware = require('../../../../middlewares/checkAPIKey.mw');
+
 const APIKeyController = require('../../../../controllers/apikey/apikey.controller');
 
 const router = express.Router();
@@ -29,10 +32,10 @@ module.exports = (app) => {
         )
         .delete(APIKeyController.delete);
 
-    app.use('/v1.0/apikeys',
+    app.use('/v1.0/admin/apikeys',
         header('apiKey').not().isEmpty(),
         validator.showError,
-        APIKeyController.validate,
+        APIKeyMiddleware.checkAPIKey,
         router
     );
 }

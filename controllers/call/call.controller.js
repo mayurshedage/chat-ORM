@@ -4,7 +4,7 @@ const CallService = require('./call.service');
 const UserService = require('../user/user.service');
 const GroupService = require('../group/group.service');
 const AppResponse = require('../../helpers/response.helper');
-const { getConversationId } = require('../../interiors/conversation.int');
+const { getConversationId } = require('../../corebase/conversation.core');
 const { getUid, generateSessionId, removeEmptyValues } = require('../../helpers/global.helper');
 
 let CallController = {
@@ -112,6 +112,8 @@ let CallController = {
                     proceed = false;
                     debug['call:create:findUser:error'] = error;
                 }
+
+                //check block relation
                 break;
 
             case 'group':
@@ -133,8 +135,6 @@ let CallController = {
         }
 
         if (proceed) {
-            //check block relation
-
             callToCreate['sender'] = uid;
             callToCreate['conversationId'] = getConversationId(callToCreate);
             callToCreate['sessionid'] = generateSessionId(callToCreate);

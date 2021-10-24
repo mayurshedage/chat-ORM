@@ -1,8 +1,10 @@
 const express = require('express');
 const { body, header } = require('express-validator');
+
 const validator = require('../../../../middlewares/validator.mw');
+const AuthTokenMiddleware = require('../../../../middlewares/checkAuthToken.mw');
+
 const GroupController = require('../../../../controllers/group/group.controller');
-const AuthTokenController = require('../../../../controllers/auth_token/auth_token.controller');
 
 const GroupUserRoute = require('./member/member.route');
 const GroupBannedUserRoute = require('./member/member.route');
@@ -43,10 +45,10 @@ module.exports = (app) => {
         )
         .delete(GroupController.delete);
 
-    app.use('/v1.0/groups',
+    app.use('/v1.0/sdk/groups',
         header('apiKey').not().isEmpty(),
         validator.showError,
-        AuthTokenController.validate,
+        AuthTokenMiddleware.checkAuthToken,
         GroupUserRoute,
         GroupBannedUserRoute,
         router

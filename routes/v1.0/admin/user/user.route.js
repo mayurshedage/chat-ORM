@@ -1,8 +1,10 @@
 const express = require('express');
 const { body, header } = require('express-validator');
+
 const validator = require('../../../../middlewares/validator.mw');
+const APIKeyMiddleware = require('../../../../middlewares/checkAPIKey.mw');
+
 const UserController = require('../../../../controllers/user/user.controller');
-const APIKeyController = require('../../../../controllers/apikey/apikey.controller');
 
 const FriendRoute = require('../user/friend/friend.route');
 const AuthTokenRoute = require('../user/auth_token/auth_token.route');
@@ -32,12 +34,12 @@ module.exports = (app) => {
         )
         .delete(UserController.delete);
 
-    app.use('/v1.0/users',
+    app.use('/v1.0/admin/users',
         header('apiKey').not().isEmpty(),
         validator.showError,
-        APIKeyController.validate,
-        FriendRoute,
+        APIKeyMiddleware.checkAPIKey,
         AuthTokenRoute,
+        FriendRoute,
         BlockedUserRoute,
         router
     );

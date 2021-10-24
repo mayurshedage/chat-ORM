@@ -1,8 +1,10 @@
 const express = require('express');
 const { body, header } = require('express-validator');
+
 const validator = require('../../../../middlewares/validator.mw');
+const APIKeyMiddleware = require('../../../../middlewares/checkAPIKey.mw');
+
 const GroupController = require('../../../../controllers/group/group.controller');
-const APIKeyController = require('../../../../controllers/apikey/apikey.controller');
 
 const GroupUserRoute = require('./member/member.route');
 const GroupBannedUserRoute = require('./member/member.route');
@@ -49,10 +51,10 @@ module.exports = (app) => {
         )
         .delete(GroupController.delete);
 
-    app.use('/v1.0/groups',
+    app.use('/v1.0/admin/groups',
         header('apiKey').not().isEmpty(),
         validator.showError,
-        APIKeyController.validate,
+        APIKeyMiddleware.checkAPIKey,
         GroupUserRoute,
         GroupBannedUserRoute,
         router
