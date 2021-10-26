@@ -13,6 +13,10 @@ exports.get = (error) => {
                 message: `This is a server side error. Please check with the developer@support.`,
                 responseCode: HttpResponse.HTTP_EXPECTATION_FAILED
             },
+            'ERR_FAILED_CACHING_CONNECTION': {
+                message: `This is a server side error. Please check with the developer@support.`,
+                responseCode: HttpResponse.HTTP_EXPECTATION_FAILED
+            },
             'ERR_OPERATION_FAILED': {
                 message: `An error occured while performing this operation. 'Please try again.`,
                 responseCode: HttpResponse.HTTP_INTERNAL_SERVER_ERROR
