@@ -11,10 +11,10 @@ const rateLimiter = ({ timeLimit, allowedHits }) => {
         let errorCode = 'ERR_BAD_ERROR_RESPONSE';
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-        const requests = await redis.incr(ip);
-
         let ttl;
         try {
+            const requests = await redis.incr(ip);
+
             if (requests === 1) {
                 await redis.expire(ip, timeLimit)
                 ttl = timeLimit
