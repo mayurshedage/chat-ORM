@@ -2,6 +2,7 @@ const express = require('express');
 const { body, header } = require('express-validator');
 
 const validator = require('../../../../middlewares/validator.mw');
+const rateLimiter = require('../../../../middlewares/rateLimiter.mw');
 const APIKeyMiddleware = require('../../../../middlewares/checkAPIKey.mw');
 
 const UserController = require('../../../../controllers/user/user.controller');
@@ -37,6 +38,7 @@ module.exports = (app) => {
     app.use('/v1.0/admin/users',
         header('apiKey').not().isEmpty(),
         validator.showError,
+        rateLimiter({ timeLimit: 10, allowedHits: 10 }),
         APIKeyMiddleware.checkAPIKey,
         AuthTokenRoute,
         FriendRoute,
