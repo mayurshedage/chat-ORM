@@ -29,7 +29,7 @@ let APIKeyMiddleware = {
                     apikey.hasOwnProperty('scope') &&
                     apikey['scope'] === 'fullAccess'
                 ) {
-                    next(); return;
+                    return next();
                 } else {
                     response['error'] = {
                         code: 'AUTH_ERR_NO_ACCESS',

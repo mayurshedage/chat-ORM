@@ -6,7 +6,7 @@ const redis = new Redis({
     },
     reconnectOnError: function (err) {
         console.log('err.message');
-        return "error";
+        return false;
     }
 });
 

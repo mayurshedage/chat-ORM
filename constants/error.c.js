@@ -21,6 +21,10 @@ exports.get = (error) => {
                 message: `An error occured while performing this operation. 'Please try again.`,
                 responseCode: HttpResponse.HTTP_INTERNAL_SERVER_ERROR
             },
+            'ERR_TOO_MANY_REQUESTS': {
+                message: `Too many requests. The maximum request allowed are ${params['maxAllowedRequests']} per minute. Please retry after ${params['retryAfter']} seconds.`,
+                responseCode: HttpResponse.HTTP_TOO_MANY_REQUESTS
+            },
             'ERR_UID_NOT_FOUND': {
                 message: `The uid ${params['uid']} not found. Make sure you have created a user with uid ${params['uid']}`,
                 responseCode: HttpResponse.HTTP_NOT_FOUND
