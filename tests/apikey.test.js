@@ -1,9 +1,8 @@
 //Require the dev-dependencies
-let chai = require('chai');
-let chaiHttp = require('chai-http');
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var should = chai.should();
 var expect = chai.expect;
-
-chai.should();
 chai.use(chaiHttp);
 
 describe('APIKeyModel', () => {
