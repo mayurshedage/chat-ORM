@@ -27,4 +27,8 @@ app.get('/', (req, res) => {
     res.status(200).send('ok');
 });
 
+process.on('uncaughtException', function (err) {
+    console.log('uncaught Exception', err);
+});
+
 module.exports = app;
