@@ -1,11 +1,13 @@
 require('dotenv').config();
 
 const cors = require('cors');
+const helmet = require("helmet");
 const express = require('express');
 
 const app = express();
 
 app.use(cors());
+app.use(helmet());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({
     limit: '50mb',
