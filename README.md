@@ -7,7 +7,7 @@
 1. Clone the repository
 2. Run command `npm install` in same directory where you clone the repository
 3. Create .env file root directory and copy all contents from .env.example (do required changes)
-4. To start redis server run `redis-server` - (For windows 10+ use install windows WSL)
+4. To start redis server run `redis-server` - (For windows 10+ use install windows WSL / Want to disable caching by updating `USE_CACHE=0` in .env )
 5. To start development server run command `npm run dev` and for production run `npm start`
 
 ### API Domain Standards
