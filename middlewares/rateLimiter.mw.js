@@ -3,6 +3,8 @@ const AppResponse = require('../helpers/response.helper');
 
 const rateLimiter = ({ timeLimit, allowedHits }) => {
     return async (req, res, next) => {
+        if (process.env.USE_CACHE == 0) return next();
+
         let response = new Object({
             req: req,
             res: res
