@@ -36,7 +36,8 @@ module.exports = (app) => {
 
             if (
                 routes.hasOwnProperty(subdomainPrefix) &&
-                routePath != '/'
+                routePath != '/' &&
+                routePath != '/apps'
             ) {
                 req['requestOwner'] = routes[subdomainPrefix] == 'admin' ? 'API' : 'SDK';
                 const currentRoute = routePath.split('/')[2].slice(0, -1);
@@ -47,6 +48,9 @@ module.exports = (app) => {
                 } catch (error) {
                     throw new Error('Request URL not found');
                 }
+            } else if (routePath === '/apps') {
+                require('./' + version + '/apps/app.route')(app);
+                next();
             }
         } else {
             throw new Error('Request URL not found');
